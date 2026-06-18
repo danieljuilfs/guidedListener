@@ -1,0 +1,20 @@
+html, body {
+  height: 100%;
+}
+
+.playbackGrid{
+    height: 100vh; 
+    display: grid;
+    grid-template-rows: 50vh 50vh; 
+}
+
+#pbContainer {
+    grid-row: 2;
+    display: grid; 
+    justify-items: center;
+}
+
+#playbutton {
+    width: fit-content;
+    height: fit-content; 
+}
