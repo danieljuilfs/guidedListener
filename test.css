@@ -1,5 +1,7 @@
 html, body {
   height: 100%;
+  margin: 0;
+  padding: 0; 
 }
 
 .playbackGrid{
@@ -17,4 +19,29 @@ html, body {
 #playbutton {
     width: fit-content;
     height: fit-content; 
+}
+
+#track {
+    background: gray;
+    width: 98vw;
+    height: .20vh; 
+    margin: 0 1vw 0 1vw;  
+    border-radius: 2px;
+}
+
+#progress {
+    height: 100%; 
+    width: 0vw; 
+    background: black; 
+    border-radius: 2px; 
+}
+
+#slider {
+    position: relative; 
+    height: 3vh; 
+    width: .25vw;
+    border-radius: 2px; 
+    background: black; 
+    transform: translateY(-1.5vh); 
+    left: 0px;  
 }

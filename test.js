@@ -55,6 +55,9 @@ function togglePlay() {
         music.play();
     }
 }
+/*
+  STATE HANDLING
+*/
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
 function updateButton() {
     const playBtn = document.getElementById("playButton");
@@ -67,10 +70,18 @@ function updateButton() {
         playBtn.textContent = "Play";
     }
 }
-//updates the current playback time of the track
-function updateTime() {
+//updates the current playback progress of the track
+function updateProgress() {
     let time = document.getElementById("pbTime");
     time.textContent = formatTime(music.currentPlaybackTime);
+    //calculate how far the bar should be moved
+    const percent = (music.currentPlaybackTime / music.currentPlaybackDuration) * 100;
+    console.log("time:" + music.currentPlaybackTime);
+    //get the slider object
+    const slider = document.querySelector("#slider");
+    //get the bar 
+    const bar = document.querySelector("#track");
+    slider.style.left = String(percent) + '%';
 }
 //updates the state of the duration, sets the timer interval
 function updateState() {
@@ -79,7 +90,7 @@ function updateState() {
     console.log(music.nowPlayingItem);
     trackname.textContent = music.nowPlayingItem.title;
     //automatically update the playback timer every 250ms
-    setInterval(updateTime, 250);
+    setInterval(updateProgress, 100);
     const duration = document.getElementById("duration");
     //set the duration for the track. 
     duration.textContent = formatTime(music.currentPlaybackDuration);

@@ -3,7 +3,7 @@ declare const MusicKit: any;
 let music: any; 
 let isReady: boolean = false; 
 let pbTime: number; 
-
+let currentTime: number; 
 
 
 //the JWT for accessing the user 
@@ -56,6 +56,8 @@ document.addEventListener('musickitloaded', async function () {
 //Event listener listening for the play button to be clicked. 
 document.getElementById("playButton")!.addEventListener("click", togglePlay);
 
+document.getElementById("slider")!.addEventListener("mousedown", startMove);
+
 //handles the playing/pausing
 function togglePlay() {
   if (!isReady) return; 
@@ -93,10 +95,28 @@ function updateButton() {
   }
 }
 
-//updates the current playback time of the track
-function updateTime() {
+//updates the current playback progress of the track
+function updateProgress() {
   let time = document.getElementById("pbTime") as HTMLDivElement;
   time.textContent = formatTime(music.currentPlaybackTime); 
+
+  //calculate how far the bar should be moved
+  const percent: number = (music.currentPlaybackTime / music.currentPlaybackDuration) * 100; 
+
+
+  console.log("time:" + music.currentPlaybackTime); 
+
+  //get the slider object
+  const slider = document.querySelector("#slider") as HTMLDivElement; 
+
+  //get the bar to color
+  const bar = document.querySelector("#progress") as HTMLDivElement; 
+
+  bar.style.width = String(percent) + '%'; 
+
+  slider.style.left = String(percent) + '%'; 
+
+
 }
 
 
@@ -104,18 +124,33 @@ function updateTime() {
 function updateState() {
 
   //set the track name
-
   const trackname = document.getElementById("trackName") as HTMLDivElement;
 
-  console.log(music.nowPlayingItem)
   trackname.textContent = music.nowPlayingItem.title; 
   //automatically update the playback timer every 250ms
-  setInterval(updateTime, 250);
+  setInterval(updateProgress, 100);
 
   const duration = document.getElementById("duration") as HTMLDivElement; 
 
   //set the duration for the track. 
   duration.textContent = formatTime(music.currentPlaybackDuration); 
+}
+
+//starts the movement of the slider
+function startMove() {
+  document.addEventListener("mousemove", dragSlider); 
+}
+
+//handles updating the slider
+function dragSlider(movement: MouseEvent) {
+  const x = movement.clientX; 
+
+
+  const percent: number = (music.currentPlaybackTime / music.currentPlaybackDuration) * 100; 
+  //get the slider object
+  const slider = document.querySelector("#slider") as HTMLDivElement; 
+  slider.style.left = String(percent) + '%'; 
+
 }
 
 //helper function to display time in the correct format
