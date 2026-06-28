@@ -7,6 +7,12 @@ const slider = document.querySelector("#slider") as HTMLDivElement;
 const bar = document.querySelector("#progress") as HTMLDivElement; 
 const body = document.body; 
 let hoverTimer: HTMLElement; 
+let rect: DOMRect = document.getElementById("clickTrack")!.getBoundingClientRect();
+
+let rafId: number; 
+
+//refresh rect on screen resize
+window.addEventListener("resize", () => { rect = document.getElementById("clickTrack")!.getBoundingClientRect();});
 
 //keep track of the bar sliding listeners
 let hasListeners = false; 
@@ -21,11 +27,14 @@ document.getElementById("slider")!.addEventListener("mousedown", startMove);
 document.getElementById("clickTrack")!.addEventListener("click", movePlayback); 
 
 //event listener to add the track timer display on hover over click track
-document.getElementById("clickTrack")!.addEventListener("mouseenter", showTimer); 
+document.getElementById("clickTrack")!.addEventListener("mouseenter", createTimer); 
 
 //event listener to add the track timer display on hover over click track
 document.getElementById("clickTrack")!.addEventListener("mouseleave", removeTimer); 
 
+
+//event listener to remove mouseover timer when you leave the track
+document.getElementById("clickTrack")!.addEventListener("mouseleave",  () => document.getElementById("clickTrack")!.removeEventListener("mousemove", updateTimer)); 
 
 
 //the JWT for accessing the user 
@@ -73,7 +82,6 @@ document.addEventListener('musickitloaded', async function () {
 
   }
 }); 
-
 
 //handles the playing/pausing
 function togglePlay() {
@@ -155,6 +163,7 @@ function startMove() {
   hasListeners = true; 
 }
 
+
 //updates the position of the slider as your cursor moves
 function dragSlider(movement: MouseEvent) {
 
@@ -168,6 +177,11 @@ function dragSlider(movement: MouseEvent) {
   bar.style.width = String(percent) + '%';
 }
 
+/* 
+  FUNCTIONS RELATED TO THE DISPLAY OF THE MOUSEOVER PLAYBACK TIMER
+*/
+
+//selects the time on click. 
 function selectTime(movement: MouseEvent) { 
 
   //get the percentage of progress
@@ -197,45 +211,76 @@ function selectTime(movement: MouseEvent) {
 
 }
 
+//moves the playback fill when you click a place on the bar. 
 function movePlayback(click: MouseEvent) {
     clearInterval(interval); 
     interval = 0;
     selectTime(click); 
 }
 
-function showTimer(movement: MouseEvent) {
+//updates the timer display on mousemove
+function updateTimer(movement: MouseEvent) {
+  timerPosition(movement); 
+}
+
+//creates the timer display on the mouse cursor on enter
+function createTimer(movement: MouseEvent) {
+
+  //listener to keep track of mouse movement
+  document.addEventListener("mousemove", updateTimer); 
 
   //create the div to show the timer
   hoverTimer = document.createElement("div"); 
-
-  //calculate the percent of the bar it should have filled
-  let percent = mouseLocation(movement);
-
-  //calculate what the time display should be
-  const time = Math.floor(percent * music.currentPlaybackDuration / 100);
   
-  hoverTimer.textContent = formatTime(time); 
+  //append to the dom. 
+   document.body.appendChild(hoverTimer);
 
-  hoverTimer.style.position = "absolute";
+  //set the position to absolute on creation. 
+  hoverTimer.style.position = "fixed";
 
-  const rect = document.getElementById("clickTrack")!.getBoundingClientRect();
-
-  hoverTimer.style.transform = "translateX(-50%)";
-  hoverTimer.style.left = `${movement.clientX - rect.left}px`;
-  hoverTimer.style.top = `-3vh`; // just above the bar
   hoverTimer.style.background = "white"; 
+  hoverTimer.style.pointerEvents = "none";
+  hoverTimer.style.willChange = "transform";
 
-  document.getElementById("clickTrack")!.appendChild(hoverTimer);
+  //do all the calculations by calling timer position
+  timerPosition(movement); 
+
+
 }
 
+
+function timerPosition(movement: MouseEvent) {
+    //calculate the percent of the bar it should have filled
+  let percent = mouseLocation(movement);
+
+  //calculate what the time display should be and format it. 
+  const time = formatTime(Math.floor(percent * music.currentPlaybackDuration / 100));
+
+  //calculate the left px value
+  const left = movement.clientX - rect.left; 
+
+  cancelAnimationFrame(rafId);
+  
+  //using a requestAnimationFrame to try to fix ghosting occuring when tracking with the cursor. 
+  rafId = requestAnimationFrame(() => {
+  hoverTimer.textContent = time; 
+  hoverTimer.style.left = `${left}px`;
+  hoverTimer.style.top = `${rect.top - 30}px`;
+  hoverTimer.style.transform = "translateX(-50%)";
+
+ }); 
+}
+
+//removes the timer when you leave the bar. 
 function removeTimer() {
   if (!hoverTimer) return; 
   hoverTimer.textContent = ""; 
   hoverTimer.remove(); 
+
 }
 
 function mouseLocation(movement: MouseEvent): number {
-  //get the slider object
+  //get the mouse location
   const x = movement.clientX; 
 
   //determine how far across the screen the bar is. 
@@ -243,7 +288,6 @@ function mouseLocation(movement: MouseEvent): number {
 
   return percent; 
 }
-
 
 
 //helper function to display time in the correct format
