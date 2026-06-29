@@ -2,7 +2,9 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0; 
-  background: gray; 
+  background: #808080;
+  -moz-osx-font-smoothing: unset;
+  transform: translateZ(0);
 }
 
 .playbackGrid{

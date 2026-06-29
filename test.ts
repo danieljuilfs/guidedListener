@@ -11,6 +11,8 @@ let rect: DOMRect = document.getElementById("clickTrack")!.getBoundingClientRect
 
 let rafId: number; 
 
+
+
 //refresh rect on screen resize
 window.addEventListener("resize", () => { rect = document.getElementById("clickTrack")!.getBoundingClientRect();});
 
@@ -233,18 +235,18 @@ function createTimer(movement: MouseEvent) {
   hoverTimer = document.createElement("div"); 
   
   //append to the dom. 
-   document.body.appendChild(hoverTimer);
+  document.body.appendChild(hoverTimer);
 
-  //set the position to absolute on creation. 
+
   hoverTimer.style.position = "fixed";
+  hoverTimer.style.left = "0";
+  hoverTimer.style.top = `${rect.top - 30}px`;
 
-  hoverTimer.style.background = "white"; 
-  hoverTimer.style.pointerEvents = "none";
-  hoverTimer.style.willChange = "transform";
+  //set its color to white. 
+  //hoverTimer.style.background = "white"; 
 
   //do all the calculations by calling timer position
   timerPosition(movement); 
-
 
 }
 
@@ -259,15 +261,12 @@ function timerPosition(movement: MouseEvent) {
   //calculate the left px value
   const left = movement.clientX - rect.left; 
 
-  cancelAnimationFrame(rafId);
-  
-  //using a requestAnimationFrame to try to fix ghosting occuring when tracking with the cursor. 
-  rafId = requestAnimationFrame(() => {
-  hoverTimer.textContent = time; 
-  hoverTimer.style.left = `${left}px`;
-  hoverTimer.style.top = `${rect.top - 30}px`;
-  hoverTimer.style.transform = "translateX(-50%)";
 
+cancelAnimationFrame(rafId); 
+//using a requestAnimationFrame to try to fix ghosting occuring when tracking with the cursor. 
+rafId = requestAnimationFrame(() => {
+  hoverTimer.textContent = time; 
+  hoverTimer.style.transform = `translateX(${left}px)`;
  }); 
 }
 
