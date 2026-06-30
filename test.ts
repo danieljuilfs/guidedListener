@@ -3,15 +3,12 @@ declare const MusicKit: any;
 let music: any; 
 let isReady: boolean = false; 
 let interval: number; 
+let queue: any; 
 const slider = document.querySelector("#slider") as HTMLDivElement; 
 const bar = document.querySelector("#progress") as HTMLDivElement; 
-const body = document.body; 
 let hoverTimer: HTMLElement; 
 let rect: DOMRect = document.getElementById("clickTrack")!.getBoundingClientRect();
-
 let rafId: number; 
-
-
 
 //refresh rect on screen resize
 window.addEventListener("resize", () => { rect = document.getElementById("clickTrack")!.getBoundingClientRect();});
@@ -33,10 +30,6 @@ document.getElementById("clickTrack")!.addEventListener("mouseenter", createTime
 
 //event listener to add the track timer display on hover over click track
 document.getElementById("clickTrack")!.addEventListener("mouseleave", removeTimer); 
-
-
-//event listener to remove mouseover timer when you leave the track
-document.getElementById("clickTrack")!.addEventListener("mouseleave",  () => document.getElementById("clickTrack")!.removeEventListener("mousemove", updateTimer)); 
 
 
 //the JWT for accessing the user 
@@ -63,18 +56,22 @@ document.addEventListener('musickitloaded', async function () {
     await music.authorize()
 
     //add a track to the queue. 
-    await music.setQueue({
+    queue = await music.setQueue({
       song: "1110860977"
     });
 
+
+    //automatically update the state of the page after the queue loads. 
+    updateState(); 
+
     //enable the play button once music kit is loaded.
     let play = document.getElementById("playButton") as HTMLButtonElement;
-
     play.disabled = false; 
 
     //listener that updates the state of the playbutton whenever music kit updates its state. 
     music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton); 
 
+    //used to keep track if whether we can enable playback or not. 
     isReady = true; 
 
     //listener that updates the state of the track.
@@ -110,20 +107,19 @@ function togglePlay() {
 
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
 function updateButton() {
-  const playBtn = document.getElementById("playButton") as HTMLButtonElement;
+  const playBtn = document.getElementById("playBtn") as HTMLSpanElement;
 
   if (!playBtn || !music) return; 
 
   if (music.playbackState === MusicKit.PlaybackStates.playing) {
-    playBtn.textContent = "Pause"; } 
+    playBtn.textContent = "pause"; } 
   else {
-    playBtn.textContent = "Play";
+    playBtn.textContent = "play_arrow";
   }
 }
 
 //updates the current playback progress of the track
 function updateProgress() {
-  console.log("update prog fired")
   let time = document.getElementById("pbTime") as HTMLDivElement;
   time.textContent = formatTime(music.currentPlaybackTime); 
 
@@ -137,22 +133,33 @@ function updateProgress() {
   slider.style.left = String(percent) + '%'; 
 }
 
-//updates the state of the duration, sets the timer interval
+//updates the track name, duration time, composer. 
 function updateState() {
 
   //get the div element that stores the track information. 
   const trackname = document.getElementById("trackName") as HTMLDivElement;
 
-  //set the track name
-  trackname.textContent = music.nowPlayingItem.title; 
+  const header = document.getElementById("composer") as HTMLHeadingElement; 
 
-  //automatically update the playback timer every 250ms
+  //set the track name
+  trackname.textContent = queue.item(0).attributes.name; 
+
+  console.log(queue.item(0).attributes)
+  
+  const composer = queue.item(0).attributes.composerName;
+
+  //if there is a composer set the composer in the heading
+  if (composer) header.textContent = composer; 
+  
+  //automatically update the playback timer every 500ms
   interval = setInterval(updateProgress, 500);
 
   const duration = document.getElementById("duration") as HTMLDivElement; 
 
+  const time = queue.item(0).attributes.durationInMillis / 1000
+
   //set the duration for the track. 
-  duration.textContent = formatTime(music.currentPlaybackDuration); 
+  duration.textContent = formatTime(time); 
 }
 
 //starts the movement of the slider
@@ -237,13 +244,17 @@ function createTimer(movement: MouseEvent) {
   //append to the dom. 
   document.body.appendChild(hoverTimer);
 
+  //style the div
+  hoverTimer.style.background = "#333333";
+  hoverTimer.style.color = "white";
+  hoverTimer.style.padding = "2px 6px";
+  hoverTimer.style.borderRadius = "4px";
+  hoverTimer.style.pointerEvents = "none";
 
+  //sets the divs position
   hoverTimer.style.position = "fixed";
   hoverTimer.style.left = "0";
   hoverTimer.style.top = `${rect.top - 30}px`;
-
-  //set its color to white. 
-  //hoverTimer.style.background = "white"; 
 
   //do all the calculations by calling timer position
   timerPosition(movement); 
@@ -252,7 +263,7 @@ function createTimer(movement: MouseEvent) {
 
 
 function timerPosition(movement: MouseEvent) {
-    //calculate the percent of the bar it should have filled
+  //calculate the percent of the bar it should have filled
   let percent = mouseLocation(movement);
 
   //calculate what the time display should be and format it. 
@@ -262,28 +273,41 @@ function timerPosition(movement: MouseEvent) {
   const left = movement.clientX - rect.left; 
 
 
-cancelAnimationFrame(rafId); 
-//using a requestAnimationFrame to try to fix ghosting occuring when tracking with the cursor. 
-rafId = requestAnimationFrame(() => {
-  hoverTimer.textContent = time; 
-  hoverTimer.style.transform = `translateX(${left}px)`;
+  cancelAnimationFrame(rafId); 
+  //using a requestAnimationFrame to try to fix ghosting occuring when tracking with the cursor. 
+  rafId = requestAnimationFrame(() => {
+    hoverTimer.textContent = time; 
+    hoverTimer.style.transform = `translateX(${left}px)`;
  }); 
 }
 
 //removes the timer when you leave the bar. 
 function removeTimer() {
   if (!hoverTimer) return; 
+  document.removeEventListener("mousemove", updateTimer);
   hoverTimer.textContent = ""; 
   hoverTimer.remove(); 
 
 }
 
 function mouseLocation(movement: MouseEvent): number {
-  //get the mouse location
-  const x = movement.clientX; 
+
+  //get the div
+  const clickTrack = document.getElementById("clickTrack") as HTMLDivElement; 
+
+  //get its styling so we can get its padding
+  const style = getComputedStyle(clickTrack); 
+  
+  //get the mouse location within the track, then subtract its left align and the padding from the div
+  const x = movement.clientX - rect.left - parseFloat(style.paddingLeft)
+
+  //calculate the padding from both sides to calculate the container size. 
+  const padded: number = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight); 
+
+  const divSize: number = rect.width - padded; 
 
   //determine how far across the screen the bar is. 
-  const percent: number = (x / window.innerWidth) * 100; 
+  const percent: number = (x / (divSize)) * 100; 
 
   return percent; 
 }

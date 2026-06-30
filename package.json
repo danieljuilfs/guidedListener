@@ -6,6 +6,7 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/musickit-js": "^1.0.11",
     "@types/node": "^25.9.3",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
