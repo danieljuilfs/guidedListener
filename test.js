@@ -94,7 +94,9 @@ function updateButton() {
 function updateProgress() {
     if (isSeeking)
         return;
+    //get the element time is stored in
     let time = document.getElementById("pbTime");
+    //update its text. 
     time.textContent = formatTime(music.currentPlaybackTime);
     //calculate how far the bar should be moved
     const percent = (music.currentPlaybackTime / music.currentPlaybackDuration) * 100;
@@ -146,7 +148,7 @@ async function selectTime(movement) {
     //get the percentage of progress
     const percent = mouseLocation(movement);
     //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
-    const time = percent * music.currentPlaybackDuration / 100;
+    const time = Math.floor(percent * music.currentPlaybackDuration / 100);
     //have to account for the fact I have to round inside of time when using the percents
     const fixedPercent = time / music.currentPlaybackDuration * 100;
     //update the bar state
@@ -154,7 +156,7 @@ async function selectTime(movement) {
     //this is here to prevent the track from running the update while the seek is still happening, otherwise you
     isSeeking = true;
     //move to the new time
-    await music.seekToTime(Math.floor(time));
+    await music.seekToTime(time);
     isSeeking = false;
     //restart the timer to udpate the interval
     interval = setInterval(updateProgress, 500);

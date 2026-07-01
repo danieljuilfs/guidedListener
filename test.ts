@@ -10,6 +10,38 @@ let hoverTimer: HTMLElement;
 let rect: DOMRect; 
 let isSeeking: boolean = false; 
 
+const json: string = `[
+	{ 
+	"name" : "A",
+	"startTime" : 0,
+	"endTime" : 52
+	},
+	{
+	"name" : "B",
+	"startTime" : 52,
+	"endTime" : 96
+	},
+	{
+	"name" : "A’",
+	"startTime" : 96,
+	"endTime" : 116
+	},
+	{
+	"name": "C",
+	"startTime": 116,
+	"endTime" : 158
+	},
+	{
+	"name": "A’’",
+	"startTime": 158,
+	"endTime": 185
+	},
+	{
+	"name": "Coda",
+	"startTime": 185
+	}
+]`
+
 //refresh rect on screen resize
 window.addEventListener("resize", () => { rect = document.getElementById("track")!.getBoundingClientRect();});
 
@@ -198,7 +230,7 @@ async function selectTime(movement: MouseEvent) {
   const percent: number = mouseLocation(movement); 
 
   //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
-  const time = percent * music.currentPlaybackDuration / 100; 
+  const time = Math.floor(percent * music.currentPlaybackDuration / 100); 
 
   //have to account for the fact I have to round inside of time when using the percents
   const fixedPercent = time / music.currentPlaybackDuration * 100; 
@@ -210,7 +242,7 @@ async function selectTime(movement: MouseEvent) {
   isSeeking = true; 
 
   //move to the new time
-  await music.seekToTime(Math.floor(time));
+  await music.seekToTime(time);
 
   isSeeking = false; 
 
