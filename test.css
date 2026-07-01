@@ -48,7 +48,6 @@ html, body {
     padding: 0; 
     background-color: white;
     border-radius: 50%; 
-    color: black; 
 }
 
 #progress {
@@ -61,11 +60,11 @@ html, body {
 
 #slider {
     position: absolute; 
-    height: 3vh; 
-    width: .20vw;
+    height: 2vh; 
+    width: .2vw;
     border-radius: 2px; 
     background: black; 
-    transform: translateY(-1.5vh); 
+    transform: translateY(-1vh); 
     left: 0px;  
 }
 

@@ -7,11 +7,11 @@ let queue: any;
 const slider = document.querySelector("#slider") as HTMLDivElement; 
 const bar = document.querySelector("#progress") as HTMLDivElement; 
 let hoverTimer: HTMLElement; 
-let rect: DOMRect = document.getElementById("clickTrack")!.getBoundingClientRect();
-let rafId: number; 
+let rect: DOMRect; 
+let isSeeking: boolean = false; 
 
 //refresh rect on screen resize
-window.addEventListener("resize", () => { rect = document.getElementById("clickTrack")!.getBoundingClientRect();});
+window.addEventListener("resize", () => { rect = document.getElementById("track")!.getBoundingClientRect();});
 
 //keep track of the bar sliding listeners
 let hasListeners = false; 
@@ -120,17 +120,19 @@ function updateButton() {
 
 //updates the current playback progress of the track
 function updateProgress() {
+  if (isSeeking) return; 
+
+  //get the element time is stored in
   let time = document.getElementById("pbTime") as HTMLDivElement;
+  
+  //update its text. 
   time.textContent = formatTime(music.currentPlaybackTime); 
 
   //calculate how far the bar should be moved
   const percent: number = (music.currentPlaybackTime / music.currentPlaybackDuration) * 100; 
 
-  //color the progress bar
-  bar.style.width = String(percent) + '%'; 
-
-  //move the slider
-  slider.style.left = String(percent) + '%'; 
+  //update the bar state
+  updateBar(percent)
 }
 
 //updates the track name, duration time, composer. 
@@ -139,13 +141,13 @@ function updateState() {
   //get the div element that stores the track information. 
   const trackname = document.getElementById("trackName") as HTMLDivElement;
 
+  //get the composer div so we can set the composer
   const header = document.getElementById("composer") as HTMLHeadingElement; 
 
   //set the track name
   trackname.textContent = queue.item(0).attributes.name; 
 
-  console.log(queue.item(0).attributes)
-  
+  //get the composer from the attributes section. 
   const composer = queue.item(0).attributes.composerName;
 
   //if there is a composer set the composer in the heading
@@ -154,8 +156,10 @@ function updateState() {
   //automatically update the playback timer every 500ms
   interval = setInterval(updateProgress, 500);
 
+  //get the duration object from the DOM
   const duration = document.getElementById("duration") as HTMLDivElement; 
 
+  //get the duratino from the queued object, which is in millseconds. convert to seconds. 
   const time = queue.item(0).attributes.durationInMillis / 1000
 
   //set the duration for the track. 
@@ -177,13 +181,10 @@ function startMove() {
 function dragSlider(movement: MouseEvent) {
 
   //calculate the percent of the bar it should have filled
-  let percent = mouseLocation(movement);
+  let percent = mouseLocation(movement);  
 
-  //move the slider to the right percent
-  slider.style.left = String(percent) + '%'; 
-
-  //update the progress bar to the right fill
-  bar.style.width = String(percent) + '%';
+  //update the bar state
+  updateBar(percent)
 }
 
 /* 
@@ -191,22 +192,27 @@ function dragSlider(movement: MouseEvent) {
 */
 
 //selects the time on click. 
-function selectTime(movement: MouseEvent) { 
+async function selectTime(movement: MouseEvent) { 
 
   //get the percentage of progress
   const percent: number = mouseLocation(movement); 
 
-  //calculate where the song should be. have to divide by 100 here as mouselocation returns a whole number. 
-  const time = Math.floor(percent * music.currentPlaybackDuration / 100); 
-  
-  //move the slider
-  slider.style.left = String(percent) + '%'; 
+  //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
+  const time = percent * music.currentPlaybackDuration / 100; 
 
-  //update the progress bar
-  bar.style.width = String(percent) + '%';
+  //have to account for the fact I have to round inside of time when using the percents
+  const fixedPercent = time / music.currentPlaybackDuration * 100; 
+
+  //update the bar state
+  updateBar(fixedPercent)
+
+  //this is here to prevent the track from running the update while the seek is still happening, otherwise you
+  isSeeking = true; 
 
   //move to the new time
-  music.seekToTime(time);
+  await music.seekToTime(Math.floor(time));
+
+  isSeeking = false; 
 
   //restart the timer to udpate the interval
   interval = setInterval(updateProgress, 500);
@@ -235,6 +241,9 @@ function updateTimer(movement: MouseEvent) {
 //creates the timer display on the mouse cursor on enter
 function createTimer(movement: MouseEvent) {
 
+  //recalculate rect
+  rect = document.getElementById("track")!.getBoundingClientRect();
+
   //listener to keep track of mouse movement
   document.addEventListener("mousemove", updateTimer); 
 
@@ -261,24 +270,36 @@ function createTimer(movement: MouseEvent) {
 
 }
 
+function updateBar(percent: number) {
+  //updates the colored transition
+  bar.style.width = String(percent) + '%';
+
+  //sets the slider to the ride location
+  slider.style.left = `${percent}%`;
+
+}
+
 
 function timerPosition(movement: MouseEvent) {
+
   //calculate the percent of the bar it should have filled
   let percent = mouseLocation(movement);
 
   //calculate what the time display should be and format it. 
-  const time = formatTime(Math.floor(percent * music.currentPlaybackDuration / 100));
+  const time = formatTime(percent * music.currentPlaybackDuration / 100);
 
   //calculate the left px value
-  const left = movement.clientX - rect.left; 
+  let left: number = movement.clientX; 
 
-
-  cancelAnimationFrame(rafId); 
-  //using a requestAnimationFrame to try to fix ghosting occuring when tracking with the cursor. 
-  rafId = requestAnimationFrame(() => {
-    hoverTimer.textContent = time; 
-    hoverTimer.style.transform = `translateX(${left}px)`;
- }); 
+  if (left < 0 || left > rect.width ) {
+    hoverTimer.style.display = "none";
+    return;
+  }
+  //update the css of the hovertimer
+  hoverTimer.style.display= ""; 
+  hoverTimer.textContent = time; 
+  hoverTimer.style.transform = `translateX(${left}px) translateX(-50%)`;
+  
 }
 
 //removes the timer when you leave the bar. 
@@ -291,25 +312,15 @@ function removeTimer() {
 }
 
 function mouseLocation(movement: MouseEvent): number {
-
-  //get the div
-  const clickTrack = document.getElementById("clickTrack") as HTMLDivElement; 
-
-  //get its styling so we can get its padding
-  const style = getComputedStyle(clickTrack); 
   
   //get the mouse location within the track, then subtract its left align and the padding from the div
-  const x = movement.clientX - rect.left - parseFloat(style.paddingLeft)
-
-  //calculate the padding from both sides to calculate the container size. 
-  const padded: number = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight); 
-
-  const divSize: number = rect.width - padded; 
+  const x = movement.clientX - rect.left 
 
   //determine how far across the screen the bar is. 
-  const percent: number = (x / (divSize)) * 100; 
+  const percent: number = (x / rect.width) * 100; 
 
-  return percent; 
+  //stop it from going over the edge. 
+  return Math.max(0, Math.min(percent, 100));
 }
 
 
