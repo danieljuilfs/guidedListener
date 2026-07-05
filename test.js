@@ -1,5 +1,6 @@
+import { parseAnnotations } from "./annotations.js";
+import * as musicService from "./musicService.js";
 let music;
-let isReady = false;
 let interval;
 let queue;
 const slider = document.querySelector("#slider");
@@ -7,12 +8,54 @@ const bar = document.querySelector("#progress");
 let hoverTimer;
 let rect;
 let isSeeking = false;
+const songId = "1110860977";
+const input = `
+{
+ "title" : "Symphony No. 88 in G Major, Hob. I:88: IV. Finale. Allegro con spirito " ,
+  "composer" : "Franz Joseph Haydn" ,
+  "album" : "Haydn: Symphonies Nos. 88, 101 'Clock' & 104 'London' (Live)" ,
+  "performer" : "Philharmonia Baroque Orchestra & Nicholas McGegan",
+  "url" : "www.butts.com",
+  "parts" : [{ 
+    "name" : "A",
+    "startTime" : 0,
+    "endTime" : 52, 
+    "text" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+    },
+    {
+    "name" : "B",
+    "startTime" : 52,
+    "endTime" : 96
+    },
+    {
+    "name" : "A’",
+    "startTime" : 96,
+    "endTime" : 116
+    },
+    {
+    "name": "C",
+    "startTime": 116,
+    "endTime" : 158
+    },
+    {
+    "name": "A’’",
+    "startTime": 158,
+    "endTime": 185
+    },
+    {
+    "name": "Coda",
+    "startTime": 185
+    }
+  ]
+}`;
+//create the guidedlistener object by passing it the input json. 
+const annotations = parseAnnotations(input);
 //refresh rect on screen resize
 window.addEventListener("resize", () => { rect = document.getElementById("track").getBoundingClientRect(); });
 //keep track of the bar sliding listeners
 let hasListeners = false;
 //Event listener listening for the play button to be clicked. 
-document.getElementById("playButton").addEventListener("click", togglePlay);
+document.getElementById("playButton").addEventListener("click", musicService.togglePlay);
 //event listener for sliding the slider
 document.getElementById("slider").addEventListener("mousedown", startMove);
 //event listener for the tracking bar
@@ -26,64 +69,15 @@ const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJp
 if (!jwt) {
     throw new Error("JWT is missing");
 }
-//bootstrapping setup when music kit finishes loading. 
-document.addEventListener('musickitloaded', async function () {
-    try {
-        await MusicKit.configure({
-            developerToken: jwt,
-            app: {
-                name: 'Radford Guided Listening',
-                build: '0.01',
-            },
-        });
-        //instantiate music kit
-        music = MusicKit.getInstance();
-        //authorize the user
-        await music.authorize();
-        //add a track to the queue. 
-        queue = await music.setQueue({
-            song: "1110860977"
-        });
-        //automatically update the state of the page after the queue loads. 
-        updateState();
-        //enable the play button once music kit is loaded.
-        let play = document.getElementById("playButton");
-        play.disabled = false;
-        //listener that updates the state of the playbutton whenever music kit updates its state. 
-        music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton);
-        //used to keep track if whether we can enable playback or not. 
-        isReady = true;
-        //listener that updates the state of the track.
-        music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateState);
-    }
-    catch (err) {
-    }
-});
-//handles the playing/pausing
-function togglePlay() {
-    if (!isReady)
-        return;
-    //get the music playbackstate, return out if its not playing/paused. 
-    const state = music.playbackState;
-    if (state === MusicKit.PlaybackStates.loading || state === MusicKit.PlaybackStates.buffering) {
-        return;
-    }
-    if (music.isPlaying) {
-        music.pause();
-    }
-    else {
-        music.play();
-    }
-}
-/*
-  STATE HANDLING
-*/
+//initialize the musicKit Instance. 
+await musicService.initMusicKit(jwt, songId, updateButton, updateTrack);
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
 function updateButton() {
     const playBtn = document.getElementById("playBtn");
+    const state = musicService.getPlaybackState;
     if (!playBtn || !music)
         return;
-    if (music.playbackState === MusicKit.PlaybackStates.playing) {
+    if (state === MusicKit.PlaybackStates.playing) {
         playBtn.textContent = "pause";
     }
     else {
@@ -97,22 +91,25 @@ function updateProgress() {
     //get the element time is stored in
     let time = document.getElementById("pbTime");
     //update its text. 
-    time.textContent = formatTime(music.currentPlaybackTime);
+    time.textContent = formatTime(musicService.getCurrentTime());
     //calculate how far the bar should be moved
-    const percent = (music.currentPlaybackTime / music.currentPlaybackDuration) * 100;
+    const percent = (musicService.getCurrentTime() / musicService.getDuration()) * 100;
     //update the bar state
     updateBar(percent);
 }
 //updates the track name, duration time, composer. 
-function updateState() {
+function updateTrack() {
     //get the div element that stores the track information. 
     const trackname = document.getElementById("trackName");
     //get the composer div so we can set the composer
     const header = document.getElementById("composer");
+    const album = document.getElementById("album");
     //set the track name
-    trackname.textContent = queue.item(0).attributes.name;
+    trackname.textContent = annotations.title;
+    //set the album name
+    album.textContent = annotations.album;
     //get the composer from the attributes section. 
-    const composer = queue.item(0).attributes.composerName;
+    const composer = annotations.composer;
     //if there is a composer set the composer in the heading
     if (composer)
         header.textContent = composer;
@@ -121,7 +118,7 @@ function updateState() {
     //get the duration object from the DOM
     const duration = document.getElementById("duration");
     //get the duratino from the queued object, which is in millseconds. convert to seconds. 
-    const time = queue.item(0).attributes.durationInMillis / 1000;
+    const time = musicService.getQueue().item(0).attributes.durationInMillis / 1000;
     //set the duration for the track. 
     duration.textContent = formatTime(time);
 }
@@ -148,15 +145,15 @@ async function selectTime(movement) {
     //get the percentage of progress
     const percent = mouseLocation(movement);
     //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
-    const time = Math.floor(percent * music.currentPlaybackDuration / 100);
+    const time = Math.floor(percent * musicService.getDuration() / 100);
     //have to account for the fact I have to round inside of time when using the percents
-    const fixedPercent = time / music.currentPlaybackDuration * 100;
+    const fixedPercent = time / musicService.getDuration() * 100;
     //update the bar state
     updateBar(fixedPercent);
     //this is here to prevent the track from running the update while the seek is still happening, otherwise you
     isSeeking = true;
     //move to the new time
-    await music.seekToTime(time);
+    await musicService.seekToTime(time);
     isSeeking = false;
     //restart the timer to udpate the interval
     interval = setInterval(updateProgress, 500);
@@ -210,7 +207,7 @@ function timerPosition(movement) {
     //calculate the percent of the bar it should have filled
     let percent = mouseLocation(movement);
     //calculate what the time display should be and format it. 
-    const time = formatTime(percent * music.currentPlaybackDuration / 100);
+    const time = formatTime(percent * musicService.getDuration() / 100);
     //calculate the left px value
     let left = movement.clientX;
     if (left < 0 || left > rect.width) {
@@ -244,5 +241,4 @@ function formatTime(seconds) {
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
-export {};
 //# sourceMappingURL=test.js.map
