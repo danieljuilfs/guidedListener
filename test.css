@@ -58,16 +58,6 @@ html, body {
     border-radius: 2px; 
 }
 
-#slider {
-    position: absolute; 
-    height: 2vh; 
-    width: .2vw;
-    border-radius: 2px; 
-    background: black; 
-    transform: translateY(-1vh); 
-    left: 0px;  
-}
-
 #timers {
     display: grid; 
     grid-template-columns: max-content max-content max-content; 

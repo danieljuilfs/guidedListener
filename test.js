@@ -1,12 +1,11 @@
 import { parseAnnotations } from "./annotations.js";
 import * as musicService from "./musicService.js";
-let music;
+import { formatTime, mouseLocation } from "./utils.js";
+//declarations
 let interval;
-let queue;
-const slider = document.querySelector("#slider");
 const bar = document.querySelector("#progress");
 let hoverTimer;
-let rect;
+let rect = document.getElementById("track").getBoundingClientRect();
 let isSeeking = false;
 const songId = "1110860977";
 const input = `
@@ -74,10 +73,11 @@ await musicService.initMusicKit(jwt, songId, updateButton, updateTrack);
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
 function updateButton() {
     const playBtn = document.getElementById("playBtn");
-    const state = musicService.getPlaybackState;
-    if (!playBtn || !music)
+    const state = musicService.getPlaybackState();
+    if (!playBtn)
         return;
-    if (state === MusicKit.PlaybackStates.playing) {
+    //2 is the enum returned for playing. hooray for magic numbers...
+    if (state === 2) {
         playBtn.textContent = "pause";
     }
     else {
@@ -126,16 +126,8 @@ function updateTrack() {
 function startMove() {
     clearInterval(interval);
     interval = 0;
-    document.addEventListener("mousemove", dragSlider);
     document.addEventListener("mouseup", selectTime);
     hasListeners = true;
-}
-//updates the position of the slider as your cursor moves
-function dragSlider(movement) {
-    //calculate the percent of the bar it should have filled
-    let percent = mouseLocation(movement);
-    //update the bar state
-    updateBar(percent);
 }
 /*
   FUNCTIONS RELATED TO THE DISPLAY OF THE MOUSEOVER PLAYBACK TIMER
@@ -143,7 +135,7 @@ function dragSlider(movement) {
 //selects the time on click. 
 async function selectTime(movement) {
     //get the percentage of progress
-    const percent = mouseLocation(movement);
+    const percent = mouseLocation(movement, rect);
     //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
     const time = Math.floor(percent * musicService.getDuration() / 100);
     //have to account for the fact I have to round inside of time when using the percents
@@ -159,7 +151,6 @@ async function selectTime(movement) {
     interval = setInterval(updateProgress, 500);
     //if listeners exist, remove them. 
     if (hasListeners) {
-        document.removeEventListener("mousemove", dragSlider);
         document.removeEventListener("mouseup", selectTime);
         hasListeners = false;
     }
@@ -200,12 +191,10 @@ function createTimer(movement) {
 function updateBar(percent) {
     //updates the colored transition
     bar.style.width = String(percent) + '%';
-    //sets the slider to the ride location
-    slider.style.left = `${percent}%`;
 }
 function timerPosition(movement) {
     //calculate the percent of the bar it should have filled
-    let percent = mouseLocation(movement);
+    let percent = mouseLocation(movement, rect);
     //calculate what the time display should be and format it. 
     const time = formatTime(percent * musicService.getDuration() / 100);
     //calculate the left px value
@@ -226,19 +215,5 @@ function removeTimer() {
     document.removeEventListener("mousemove", updateTimer);
     hoverTimer.textContent = "";
     hoverTimer.remove();
-}
-function mouseLocation(movement) {
-    //get the mouse location within the track, then subtract its left align and the padding from the div
-    const x = movement.clientX - rect.left;
-    //determine how far across the screen the bar is. 
-    const percent = (x / rect.width) * 100;
-    //stop it from going over the edge. 
-    return Math.max(0, Math.min(percent, 100));
-}
-//helper function to display time in the correct format
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 //# sourceMappingURL=test.js.map

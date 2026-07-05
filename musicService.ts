@@ -16,6 +16,7 @@ export function initMusicKit(developerToken: string, songId: string, updateButto
             },
         });
 
+        //create the musicKit instance, and authorize the student. 
         music = MusicKit.getInstance();
 
         await music.authorize();
@@ -28,6 +29,7 @@ export function initMusicKit(developerToken: string, songId: string, updateButto
         let play = document.getElementById("playButton") as HTMLButtonElement;
         play.disabled = false; 
 
+        //isREady allows used to handle only allowing things to fire once music kit is initialized. 
         isReady = true;
 
         //listener that updates the state of the playbutton whenever music kit updates its state. 
@@ -78,7 +80,9 @@ export function getDuration(): number {
     return music.currentPlaybackDuration; 
 }
 
-export function seekToTime(time: number) { }
+export function seekToTime(time: number) {
+    music.seekToTime(time); 
+ }
 
 export function getPlaybackState() {
     return music.playbackState
