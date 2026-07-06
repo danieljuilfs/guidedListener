@@ -81,8 +81,13 @@ const input: string = `
   //get the playbuttons so we can get its width
   const track: HTMLDivElement = document.getElementById("clickTrack") as HTMLDivElement; 
 
+  const paddingLeft: number = parseFloat(getComputedStyle(track).paddingLeft); 
+  console.log(track.getBoundingClientRect().left); 
+  
   //get the computed left padding. 
-  sectionDiv.style.paddingLeft = getComputedStyle(track).paddingLeft; 
+  sectionDiv.style.paddingLeft = `${track.getBoundingClientRect().left + paddingLeft}px`; 
+
+
 
   //set the width based on the size of each container
   sectionDiv.style.gridTemplateColumns = columns.join(" "); 

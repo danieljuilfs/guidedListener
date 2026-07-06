@@ -56,8 +56,10 @@ export function createAnnotations() {
     }
     //get the playbuttons so we can get its width
     const track = document.getElementById("clickTrack");
+    const paddingLeft = parseFloat(getComputedStyle(track).paddingLeft);
+    console.log(track.getBoundingClientRect().left);
     //get the computed left padding. 
-    sectionDiv.style.paddingLeft = getComputedStyle(track).paddingLeft;
+    sectionDiv.style.paddingLeft = `${track.getBoundingClientRect().left + paddingLeft}px`;
     //set the width based on the size of each container
     sectionDiv.style.gridTemplateColumns = columns.join(" ");
 }

@@ -16,13 +16,14 @@ export function updateTrack(): void {
   //get the composer div so we can set the composer
   const header: HTMLHeadingElement= document.getElementById("composer") as HTMLHeadingElement; 
 
-  const album: HTMLDivElement = document.getElementById("album") as HTMLDivElement
+  const album: HTMLLinkElement = document.getElementById("album") as HTMLLinkElement
  
   //set the track name
   trackname.textContent = annotations.title;  
 
   //set the album name
   album.textContent = annotations.album; 
+  album.href = annotations.url; 
 
   //get the composer from the attributes section. 
   const composer: string = annotations.composer; 

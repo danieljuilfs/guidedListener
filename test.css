@@ -5,11 +5,16 @@ html, body {
   background: white;
 }
 
+#bottom {
+    height: 100%; 
+}
 #controls {
     display: grid;
     grid-template-columns: max-content auto; 
     box-sizing: border-box; 
     max-width: 100%; 
+    height: 100%; 
+    margin-top: 1.5vh; 
 }
 
 #clickTrack {
@@ -21,18 +26,22 @@ html, body {
 }
 
 #composer {
-    margin: 2vh 0 1vh 0; 
-    height: 1em; 
+    margin: 0 0 1vh 0; 
 }
 
 #identifiers {
     margin-left: 2vw; 
     height: 100%; 
+    display: grid; 
+    grid-template-rows: 45fr 35fr 25fr; 
+    padding-top: 3vh; 
+    box-sizing: border-box; 
 }
 
 #pbContainer {
     display: grid; 
     height: 100%; 
+    grid-template-rows: 20fr 40fr 40fr; 
 }
 
 #playbackGrid{
@@ -54,13 +63,18 @@ html, body {
     position: absolute; 
     height: 100%; 
     width: 0vw; 
-    background: orange; 
-    border-radius: 2px; 
+    background: #ffd932; 
+    border-color: #cfb234; 
+    border-width: .1vh; 
 }
 
 #sections {
     display: grid;
-    margin: 0 1vw 0 0; 
+    margin: 1vh 1vw 0 0; 
+    height: 100%; 
+    border-radius: 1vw; 
+    gap: 1px;
+    place-items: center; 
 }
 
 #sections > div:nth-child(odd) {
@@ -68,6 +82,18 @@ html, body {
 }
 #sections > div:nth-child(even) {
   background: #5aa8ff;
+}
+
+#sections > div {
+    border-radius: .5vw;
+    width: 100%;
+    height: 100%;  
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white; 
+    font-size: 2rem; 
 }
 
 #timers {
@@ -79,14 +105,12 @@ html, body {
 #track {
     position: relative;  
     background: black;
-    height: .30vh; 
+    height: .5vh; 
     border-radius: 2px;
     left: 0; 
     top: 50%;
 }
 
 #trackName {
-    font-size: 24px; 
-    margin-bottom: 1.5vh; 
-    height: 1em; 
+    font-size: 1.5rem; 
 }
