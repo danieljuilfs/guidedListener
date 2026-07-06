@@ -12,6 +12,7 @@ export function initMusicKit(developerToken, songId, updateButton, updateTrack) 
                         build: '0.01'
                     },
                 });
+                //create the musicKit instance, and authorize the student. 
                 music = MusicKit.getInstance();
                 await music.authorize();
                 queue = await music.setQueue({ song: songId });
@@ -19,6 +20,7 @@ export function initMusicKit(developerToken, songId, updateButton, updateTrack) 
                 //enable the play button once music kit is loaded.
                 let play = document.getElementById("playButton");
                 play.disabled = false;
+                //isREady allows used to handle only allowing things to fire once music kit is initialized. 
                 isReady = true;
                 //listener that updates the state of the playbutton whenever music kit updates its state. 
                 music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton);

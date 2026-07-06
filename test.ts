@@ -1,62 +1,27 @@
 //imports
-import type { GuidedListener } from "./annotations.js";
-import type { section } from "./annotations.js";
-import { parseAnnotations } from "./annotations.js";
 import * as musicService from "./musicService.js";
 import { formatTime, mouseLocation} from "./utils.js"; 
+import { updateTrack, updateProgress} from "./trackInfo.js"
+import { updateBar } from "./slider.js"; 
 
 
 //declarations
 let interval: number; 
-const bar = document.querySelector("#progress") as HTMLDivElement; 
 let hoverTimer: HTMLElement; 
 let rect: DOMRect = document.getElementById("track")!.getBoundingClientRect(); 
-let isSeeking: boolean = false; 
 
+//the JWT for accessing the user 
+const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJpYXQiOjE3ODE2MjA1NjEsImV4cCI6MTc5NzE3MjU2MSwiaXNzIjoiTVdCNEs2RjNCMyJ9.5csNY_Z_PWoDdADL2_a9ihAdP5pbAA61gGR90hsIlM3PzvokPcVM-n-56a1QpX4LfyGZ39wWwvciPRm5nrgdyA" 
+
+if (!jwt) {
+    throw new Error("JWT is missing");
+}
+
+//temporary hardcoded song id
 const songId: string = "1110860977"
 
-const input: string = `
-{
- "title" : "Symphony No. 88 in G Major, Hob. I:88: IV. Finale. Allegro con spirito " ,
-  "composer" : "Franz Joseph Haydn" ,
-  "album" : "Haydn: Symphonies Nos. 88, 101 'Clock' & 104 'London' (Live)" ,
-  "performer" : "Philharmonia Baroque Orchestra & Nicholas McGegan",
-  "url" : "www.butts.com",
-  "parts" : [{ 
-    "name" : "A",
-    "startTime" : 0,
-    "endTime" : 52, 
-    "text" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
-    },
-    {
-    "name" : "B",
-    "startTime" : 52,
-    "endTime" : 96
-    },
-    {
-    "name" : "A’",
-    "startTime" : 96,
-    "endTime" : 116
-    },
-    {
-    "name": "C",
-    "startTime": 116,
-    "endTime" : 158
-    },
-    {
-    "name": "A’’",
-    "startTime": 158,
-    "endTime": 185
-    },
-    {
-    "name": "Coda",
-    "startTime": 185
-    }
-  ]
-}`
-
-//create the guidedlistener object by passing it the input json. 
-const annotations: GuidedListener = parseAnnotations(input);
+//automatically update the playback timer every 500ms
+interval = setInterval(updateProgress, 500);
 
 //refresh rect on screen resize
 window.addEventListener("resize", () => { rect = document.getElementById("track")!.getBoundingClientRect();});
@@ -79,14 +44,6 @@ document.getElementById("clickTrack")!.addEventListener("mouseenter", createTime
 //event listener to add the track timer display on hover over click track
 document.getElementById("clickTrack")!.addEventListener("mouseleave", removeTimer); 
 
-
-//the JWT for accessing the user 
-const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJpYXQiOjE3ODE2MjA1NjEsImV4cCI6MTc5NzE3MjU2MSwiaXNzIjoiTVdCNEs2RjNCMyJ9.5csNY_Z_PWoDdADL2_a9ihAdP5pbAA61gGR90hsIlM3PzvokPcVM-n-56a1QpX4LfyGZ39wWwvciPRm5nrgdyA" 
-
-if (!jwt) {
-    throw new Error("JWT is missing");
-}
-
 //initialize the musicKit Instance. 
 await musicService.initMusicKit(jwt, songId, updateButton, updateTrack); 
 
@@ -103,59 +60,6 @@ function updateButton() {
   else {
     playBtn.textContent = "play_arrow";
   }
-}
-
-//updates the current playback progress of the track
-function updateProgress() {
-  if (isSeeking) return; 
-
-  //get the element time is stored in
-  let time = document.getElementById("pbTime") as HTMLDivElement;
-  
-  //update its text. 
-  time.textContent = formatTime(musicService.getCurrentTime()); 
-
-  //calculate how far the bar should be moved
-  const percent: number = (musicService.getCurrentTime()/ musicService.getDuration()) * 100; 
-
-  //update the bar state
-  updateBar(percent)
-}
-
-//updates the track name, duration time, composer. 
-function updateTrack() {
-
-  //get the div element that stores the track information. 
-  const trackname: HTMLDivElement = document.getElementById("trackName") as HTMLDivElement;
-
-  //get the composer div so we can set the composer
-  const header: HTMLHeadingElement= document.getElementById("composer") as HTMLHeadingElement; 
-
-  const album: HTMLDivElement = document.getElementById("album") as HTMLDivElement
- 
-  //set the track name
-  trackname.textContent = annotations.title;  
-
-  //set the album name
-  album.textContent = annotations.album; 
-
-  //get the composer from the attributes section. 
-  const composer: string = annotations.composer; 
-
-  //if there is a composer set the composer in the heading
-  if (composer) header.textContent = composer; 
-  
-  //automatically update the playback timer every 500ms
-  interval = setInterval(updateProgress, 500);
-
-  //get the duration object from the DOM
-  const duration: HTMLDivElement = document.getElementById("duration") as HTMLDivElement; 
-
-  //get the duratino from the queued object, which is in millseconds. convert to seconds. 
-  const time: number = musicService.getQueue().item(0).attributes.durationInMillis / 1000
-
-  //set the duration for the track. 
-  duration.textContent = formatTime(time); 
 }
 
 //starts the movement of the slider
@@ -186,13 +90,8 @@ async function selectTime(movement: MouseEvent) {
   //update the bar state
   updateBar(fixedPercent)
 
-  //this is here to prevent the track from running the update while the seek is still happening, otherwise you
-  isSeeking = true; 
-
   //move to the new time
   await musicService.seekToTime(time);
-
-  isSeeking = false; 
 
   //restart the timer to udpate the interval
   interval = setInterval(updateProgress, 500);
@@ -248,13 +147,6 @@ function createTimer(movement: MouseEvent) {
   timerPosition(movement); 
 
 }
-
-function updateBar(percent: number) {
-  //updates the colored transition
-  bar.style.width = String(percent) + '%';
-
-}
-
 
 function timerPosition(movement: MouseEvent) {
 

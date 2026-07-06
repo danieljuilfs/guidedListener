@@ -9,8 +9,8 @@ export interface GuidedListener {
 export interface section {
     name: string;
     startTime: number;
-    endTIme: number;
-    text: string;
+    endTime: number;
+    text?: string;
 }
-export declare function parseAnnotations(jsonString: string): GuidedListener;
+export declare function createAnnotations(): GuidedListener;
 //# sourceMappingURL=annotations.d.ts.map

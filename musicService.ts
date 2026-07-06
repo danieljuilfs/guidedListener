@@ -1,3 +1,5 @@
+import type { GuidedListener } from "./annotations";
+
 declare const MusicKit: any;
 let music: any; 
 let isReady: boolean = false; 
