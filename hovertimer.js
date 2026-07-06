@@ -44,7 +44,7 @@ export function timerPosition(movement) {
     //calculate what the time display should be and format it. 
     const time = formatTime(percent * getDuration() / 100);
     //calculate the left px value
-    let left = movement.clientX;
+    let left = movement.clientX - rect.left;
     if (left < 0 || left > rect.width) {
         hoverTimer.style.display = "none";
         return;
@@ -52,7 +52,7 @@ export function timerPosition(movement) {
     //update the css of the hovertimer
     hoverTimer.style.display = "";
     hoverTimer.textContent = time;
-    hoverTimer.style.transform = `translateX(${left}px) translateX(-50%)`;
+    hoverTimer.style.transform = `translateX(${movement.clientX}px) translateX(-50%)`;
 }
 //removes the timer when you leave the bar. 
 export function removeTimer() {

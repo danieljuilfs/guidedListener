@@ -1,5 +1,5 @@
 // trackRect.ts
-const track = document.getElementById("clickTrack") as HTMLDivElement;
+const track = document.getElementById("track") as HTMLDivElement;
 
 let rect: DOMRect = track.getBoundingClientRect();
 

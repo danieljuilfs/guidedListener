@@ -62,7 +62,7 @@ export function timerPosition(movement: MouseEvent): void {
   const time = formatTime(percent * getDuration() / 100);
 
   //calculate the left px value
-  let left: number = movement.clientX; 
+  let left: number = movement.clientX - rect.left; 
 
   if (left < 0 || left > rect.width ) {
     hoverTimer.style.display = "none";
@@ -71,7 +71,7 @@ export function timerPosition(movement: MouseEvent): void {
   //update the css of the hovertimer
   hoverTimer.style.display= ""; 
   hoverTimer.textContent = time; 
-  hoverTimer.style.transform = `translateX(${left}px) translateX(-50%)`;
+  hoverTimer.style.transform = `translateX(${movement.clientX}px) translateX(-50%)`;
   
 }
 
