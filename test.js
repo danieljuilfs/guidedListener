@@ -1,6 +1,7 @@
 //imports
 import * as musicService from "./musicService.js";
-import { updateTrack, updateProgress } from "./trackInfo.js";
+import { updateTrack } from "./trackInfo.js";
+import "./hoverTimer.js";
 //the JWT for accessing the user 
 const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJpYXQiOjE3ODE2MjA1NjEsImV4cCI6MTc5NzE3MjU2MSwiaXNzIjoiTVdCNEs2RjNCMyJ9.5csNY_Z_PWoDdADL2_a9ihAdP5pbAA61gGR90hsIlM3PzvokPcVM-n-56a1QpX4LfyGZ39wWwvciPRm5nrgdyA";
 if (!jwt) {
@@ -26,7 +27,4 @@ function updateButton() {
         playBtn.textContent = "play_arrow";
     }
 }
-/*
-  FUNCTIONS RELATED TO THE DISPLAY OF THE MOUSEOVER PLAYBACK TIMER
-*/
 //# sourceMappingURL=test.js.map

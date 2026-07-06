@@ -1,8 +1,17 @@
 //imports
-import {updateProgress} from "./trackInfo.js"
-import { formatTime, mouseLocation} from "./utils.js"; 
-import * as musicService from "./musicService.js";
+
+//function to track the progress of the bar
+import { updateProgress } from "./trackInfo.js"
+
+//utility for calulcation of the mouse's location
+import { mouseLocation } from "./utils.js"; 
+
+//imports the duration and seek functions from the music service
+import {getDuration, seekToTime } from "./musicService.js";
+
+//returns the pages DomRect
 import { getRect } from "./trackRect.js"; 
+
 
 let rect = getRect(); 
 
@@ -20,8 +29,6 @@ document.getElementById("slider")!.addEventListener("mousedown", startMove);
 
 //event listener for the tracking bar
 document.getElementById("clickTrack")!.addEventListener("click", movePlayback); 
-
-
 
 //update the bars width
 export function updateBar(percent: number): void {
@@ -44,16 +51,16 @@ async function selectTime(movement: MouseEvent) {
   const percent: number = mouseLocation(movement, rect); 
 
   //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
-  const time = Math.floor(percent * musicService.getDuration()/ 100); 
+  const time = Math.floor(percent * getDuration()/ 100); 
 
   //have to account for the fact I have to round inside of time when using the percents
-  const fixedPercent = time / musicService.getDuration() * 100; 
+  const fixedPercent = time / getDuration() * 100; 
 
   //update the bar state
   updateBar(fixedPercent)
 
   //move to the new time
-  await musicService.seekToTime(time);
+  await seekToTime(time);
 
   //restart the timer to udpate the interval
   interval = setInterval(updateProgress, 500);

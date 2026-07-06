@@ -1,7 +1,11 @@
 //imports
+//function to track the progress of the bar
 import { updateProgress } from "./trackInfo.js";
-import { formatTime, mouseLocation } from "./utils.js";
-import * as musicService from "./musicService.js";
+//utility for calulcation of the mouse's location
+import { mouseLocation } from "./utils.js";
+//imports the duration and seek functions from the music service
+import { getDuration, seekToTime } from "./musicService.js";
+//returns the pages DomRect
 import { getRect } from "./trackRect.js";
 let rect = getRect();
 //declarations
@@ -30,13 +34,13 @@ async function selectTime(movement) {
     //get the percentage of progress
     const percent = mouseLocation(movement, rect);
     //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
-    const time = Math.floor(percent * musicService.getDuration() / 100);
+    const time = Math.floor(percent * getDuration() / 100);
     //have to account for the fact I have to round inside of time when using the percents
-    const fixedPercent = time / musicService.getDuration() * 100;
+    const fixedPercent = time / getDuration() * 100;
     //update the bar state
     updateBar(fixedPercent);
     //move to the new time
-    await musicService.seekToTime(time);
+    await seekToTime(time);
     //restart the timer to udpate the interval
     interval = setInterval(updateProgress, 500);
     //if listeners exist, remove them. 

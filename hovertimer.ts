@@ -1,8 +1,12 @@
 //imports 
+
+//utilitys for formatting time and calulcation the mouse location
 import { formatTime, mouseLocation} from "./utils.js"; 
+
+//returns the pages DomRect
 import { getRect } from "./trackRect.js"; 
 
-import * as musicService from "./musicService.js";
+import { getDuration } from "./musicService.js";
 
 //declarations
 let hoverTimer: HTMLElement; 
@@ -15,12 +19,12 @@ document.getElementById("clickTrack")!.addEventListener("mouseenter", createTime
 document.getElementById("clickTrack")!.addEventListener("mouseleave", removeTimer); 
 
 //updates the timer display on mousemove
-function updateTimer(movement: MouseEvent) {
+export function updateTimer(movement: MouseEvent) {
   timerPosition(movement); 
 }
 
 //creates the timer display on the mouse cursor on enter
-function createTimer(movement: MouseEvent) {
+export function createTimer(movement: MouseEvent) {
     rect = getRect(); 
   //listener to keep track of mouse movement
   document.addEventListener("mousemove", updateTimer); 
@@ -48,13 +52,13 @@ function createTimer(movement: MouseEvent) {
 
 }
 
-function timerPosition(movement: MouseEvent) {
+export function timerPosition(movement: MouseEvent) {
 
   //calculate the percent of the bar it should have filled
   let percent = mouseLocation(movement, rect);
 
   //calculate what the time display should be and format it. 
-  const time = formatTime(percent * musicService.getDuration() / 100);
+  const time = formatTime(percent * getDuration() / 100);
 
   //calculate the left px value
   let left: number = movement.clientX; 
@@ -71,7 +75,7 @@ function timerPosition(movement: MouseEvent) {
 }
 
 //removes the timer when you leave the bar. 
-function removeTimer() {
+export function removeTimer() {
   if (!hoverTimer) return; 
   document.removeEventListener("mousemove", updateTimer);
   hoverTimer.textContent = ""; 

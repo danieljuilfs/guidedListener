@@ -1,7 +1,9 @@
 //imports 
+//utilitys for formatting time and calulcation the mouse location
 import { formatTime, mouseLocation } from "./utils.js";
+//returns the pages DomRect
 import { getRect } from "./trackRect.js";
-import * as musicService from "./musicService.js";
+import { getDuration } from "./musicService.js";
 //declarations
 let hoverTimer;
 let rect = getRect();
@@ -10,11 +12,11 @@ document.getElementById("clickTrack").addEventListener("mouseenter", createTimer
 //event listener to add the track timer display on hover over click track
 document.getElementById("clickTrack").addEventListener("mouseleave", removeTimer);
 //updates the timer display on mousemove
-function updateTimer(movement) {
+export function updateTimer(movement) {
     timerPosition(movement);
 }
 //creates the timer display on the mouse cursor on enter
-function createTimer(movement) {
+export function createTimer(movement) {
     rect = getRect();
     //listener to keep track of mouse movement
     document.addEventListener("mousemove", updateTimer);
@@ -35,11 +37,11 @@ function createTimer(movement) {
     //do all the calculations by calling timer position
     timerPosition(movement);
 }
-function timerPosition(movement) {
+export function timerPosition(movement) {
     //calculate the percent of the bar it should have filled
     let percent = mouseLocation(movement, rect);
     //calculate what the time display should be and format it. 
-    const time = formatTime(percent * musicService.getDuration() / 100);
+    const time = formatTime(percent * getDuration() / 100);
     //calculate the left px value
     let left = movement.clientX;
     if (left < 0 || left > rect.width) {
@@ -52,11 +54,11 @@ function timerPosition(movement) {
     hoverTimer.style.transform = `translateX(${left}px) translateX(-50%)`;
 }
 //removes the timer when you leave the bar. 
-function removeTimer() {
+export function removeTimer() {
     if (!hoverTimer)
         return;
     document.removeEventListener("mousemove", updateTimer);
     hoverTimer.textContent = "";
     hoverTimer.remove();
 }
-//# sourceMappingURL=hovertimer.js.map
+//# sourceMappingURL=hoverTimer.js.map
