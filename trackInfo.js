@@ -1,10 +1,10 @@
-import { createAnnotations } from "./annotations.js";
+import { getAnnotations } from "./annotations.js";
 import { formatTime } from "./utils.js";
 import { getCurrentTime, getDuration, getQueue } from "./musicService.js";
 import { updateBar } from "./slider.js";
 //updates the track name, duration time, composer. 
 export function updateTrack() {
-    const annotations = createAnnotations();
+    const annotations = getAnnotations();
     //get the div element that stores the track information. 
     const trackname = document.getElementById("trackName");
     //get the composer div so we can set the composer

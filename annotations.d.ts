@@ -4,6 +4,7 @@ export interface GuidedListener {
     album: string;
     performer: string;
     url: string;
+    duration: number;
     sections: section[];
 }
 export interface section {
@@ -12,5 +13,6 @@ export interface section {
     endTime: number;
     text?: string;
 }
-export declare function createAnnotations(): GuidedListener;
+export declare function createAnnotations(): void;
+export declare function getAnnotations(): GuidedListener;
 //# sourceMappingURL=annotations.d.ts.map

@@ -54,6 +54,8 @@ export function checkReady() {
     return isReady;
 }
 export function getCurrentTime() {
+    if (!music)
+        return 0;
     return music.currentPlaybackTime;
 }
 export function getDuration() {

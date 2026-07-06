@@ -4,6 +4,7 @@ export interface GuidedListener {
   album: string; 
   performer: string;
   url: string; 
+  duration: number; 
   sections: section[]; 
 }
 
@@ -16,7 +17,7 @@ export interface section {
 
 let annotations: GuidedListener; 
 
-export function createAnnotations(): GuidedListener {
+export function createAnnotations() {
 
 const input: string = `
 {
@@ -24,8 +25,9 @@ const input: string = `
   "composer" : "Franz Joseph Haydn" ,
   "album" : "Haydn: Symphonies Nos. 88, 101 'Clock' & 104 'London' (Live)" ,
   "performer" : "Philharmonia Baroque Orchestra & Nicholas McGegan",
-  "url" : "www.butts.com",
-  "parts" : [{ 
+  "url" : "https://music.apple.com/us/album/symphony-no-88-in-g-major-hob-i-88-iv-finale-allegro/1110860778?i=1110860977",
+  "duration": 246, 
+  "sections" : [{ 
     "name" : "A",
     "startTime" : 0,
     "endTime" : 52, 
@@ -53,12 +55,39 @@ const input: string = `
     },
     {
     "name": "Coda",
-    "startTime": 185
+    "startTime": 185,
+    "endTime": 246
     }
   ]
 }`
   
   annotations = JSON.parse(input); 
-  return annotations; 
+
+  const columns: string[] = []; 
+  //get the div element that stores the track information. 
+  const sectionDiv: HTMLDivElement = document.getElementById("sections") as HTMLDivElement;
+
+  for (const curSection of annotations.sections ) {
+    //create the div, append it to the dom, set its text
+    let newDiv: HTMLDivElement = document.createElement("div"); 
+    sectionDiv.append(newDiv); 
+    newDiv.textContent = curSection.name; 
+
+    //calculate how long each section is, and then add it to the array for doing output. 
+    const duration: number = curSection.endTime - curSection.startTime;
+    columns.push(`${duration}fr`); 
+  }
+
+  //get the playbuttons so we can get its width
+  const track: HTMLDivElement = document.getElementById("clickTrack") as HTMLDivElement; 
+
+  //get the computed left padding. 
+  sectionDiv.style.paddingLeft = getComputedStyle(track).paddingLeft; 
+
+  //set the width based on the size of each container
+  sectionDiv.style.gridTemplateColumns = columns.join(" "); 
  }
 
+export function getAnnotations(): GuidedListener {
+  return annotations; 
+}

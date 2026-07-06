@@ -1,1 +1,1 @@
-{"version":3,"file":"hoverTimer.d.ts","sourceRoot":"","sources":["hoverTimer.ts"],"names":[],"mappings":"AAqBA,wBAAgB,WAAW,CAAC,QAAQ,EAAE,UAAU,QAE/C;AAGD,wBAAgB,WAAW,CAAC,QAAQ,EAAE,UAAU,QA0B/C;AAED,wBAAgB,aAAa,CAAC,QAAQ,EAAE,UAAU,QAoBjD;AAGD,wBAAgB,WAAW,SAM1B"}
+{"version":3,"file":"hoverTimer.d.ts","sourceRoot":"","sources":["hoverTimer.ts"],"names":[],"mappings":"AAsBA,wBAAgB,WAAW,CAAC,QAAQ,EAAE,UAAU,QAE/C;AAGD,wBAAgB,WAAW,CAAC,QAAQ,EAAE,UAAU,GAAG,IAAI,CA0BtD;AAED,wBAAgB,aAAa,CAAC,QAAQ,EAAE,UAAU,GAAG,IAAI,CAoBxD;AAGD,wBAAgB,WAAW,IAAI,IAAI,CAMlC"}

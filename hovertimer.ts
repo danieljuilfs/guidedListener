@@ -6,6 +6,7 @@ import { formatTime, mouseLocation} from "./utils.js";
 //returns the pages DomRect
 import { getRect } from "./trackRect.js"; 
 
+//get the duration from musicService.ts
 import { getDuration } from "./musicService.js";
 
 //declarations
@@ -24,7 +25,7 @@ export function updateTimer(movement: MouseEvent) {
 }
 
 //creates the timer display on the mouse cursor on enter
-export function createTimer(movement: MouseEvent) {
+export function createTimer(movement: MouseEvent): void  {
     rect = getRect(); 
   //listener to keep track of mouse movement
   document.addEventListener("mousemove", updateTimer); 
@@ -52,7 +53,7 @@ export function createTimer(movement: MouseEvent) {
 
 }
 
-export function timerPosition(movement: MouseEvent) {
+export function timerPosition(movement: MouseEvent): void {
 
   //calculate the percent of the bar it should have filled
   let percent = mouseLocation(movement, rect);
@@ -75,7 +76,7 @@ export function timerPosition(movement: MouseEvent) {
 }
 
 //removes the timer when you leave the bar. 
-export function removeTimer() {
+export function removeTimer(): void  {
   if (!hoverTimer) return; 
   document.removeEventListener("mousemove", updateTimer);
   hoverTimer.textContent = ""; 

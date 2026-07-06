@@ -3,6 +3,7 @@
 import { formatTime, mouseLocation } from "./utils.js";
 //returns the pages DomRect
 import { getRect } from "./trackRect.js";
+//get the duration from musicService.ts
 import { getDuration } from "./musicService.js";
 //declarations
 let hoverTimer;

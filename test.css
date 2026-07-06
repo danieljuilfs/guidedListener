@@ -58,6 +58,18 @@ html, body {
     border-radius: 2px; 
 }
 
+#sections {
+    display: grid;
+    margin: 0 1vw 0 0; 
+}
+
+#sections > div:nth-child(odd) {
+  background: #366eab;
+}
+#sections > div:nth-child(even) {
+  background: #5aa8ff;
+}
+
 #timers {
     display: grid; 
     grid-template-columns: max-content max-content max-content; 

@@ -7,9 +7,10 @@ import { mouseLocation } from "./utils.js";
 import { getDuration, seekToTime } from "./musicService.js";
 //returns the pages DomRect
 import { getRect } from "./trackRect.js";
-let rect = getRect();
 //declarations
 const bar = document.querySelector("#progress");
+//get the DomRect
+let rect = getRect();
 //initialize interval to run update progress every 500 ms. 
 let interval = setInterval(updateProgress, 500);
 //keep track of the bar sliding listeners

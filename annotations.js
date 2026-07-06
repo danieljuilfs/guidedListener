@@ -6,8 +6,9 @@ export function createAnnotations() {
   "composer" : "Franz Joseph Haydn" ,
   "album" : "Haydn: Symphonies Nos. 88, 101 'Clock' & 104 'London' (Live)" ,
   "performer" : "Philharmonia Baroque Orchestra & Nicholas McGegan",
-  "url" : "www.butts.com",
-  "parts" : [{ 
+  "url" : "https://music.apple.com/us/album/symphony-no-88-in-g-major-hob-i-88-iv-finale-allegro/1110860778?i=1110860977",
+  "duration": 246, 
+  "sections" : [{ 
     "name" : "A",
     "startTime" : 0,
     "endTime" : 52, 
@@ -35,11 +36,32 @@ export function createAnnotations() {
     },
     {
     "name": "Coda",
-    "startTime": 185
+    "startTime": 185,
+    "endTime": 246
     }
   ]
 }`;
     annotations = JSON.parse(input);
+    const columns = [];
+    //get the div element that stores the track information. 
+    const sectionDiv = document.getElementById("sections");
+    for (const curSection of annotations.sections) {
+        //create the div, append it to the dom, set its text
+        let newDiv = document.createElement("div");
+        sectionDiv.append(newDiv);
+        newDiv.textContent = curSection.name;
+        //calculate how long each section is, and then add it to the array for doing output. 
+        const duration = curSection.endTime - curSection.startTime;
+        columns.push(`${duration}fr`);
+    }
+    //get the playbuttons so we can get its width
+    const track = document.getElementById("clickTrack");
+    //get the computed left padding. 
+    sectionDiv.style.paddingLeft = getComputedStyle(track).paddingLeft;
+    //set the width based on the size of each container
+    sectionDiv.style.gridTemplateColumns = columns.join(" ");
+}
+export function getAnnotations() {
     return annotations;
 }
 //# sourceMappingURL=annotations.js.map

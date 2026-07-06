@@ -1,5 +1,3 @@
-import type { GuidedListener } from "./annotations";
-
 declare const MusicKit: any;
 let music: any; 
 let isReady: boolean = false; 
@@ -74,6 +72,7 @@ export function checkReady(): boolean {
 }
 
 export function getCurrentTime(): number { 
+    if (!music) return 0; 
     return music.currentPlaybackTime;
 }
 
