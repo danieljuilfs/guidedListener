@@ -1,10 +1,76 @@
+//imports
+import {updateProgress} from "./trackInfo.js"
+import { formatTime, mouseLocation} from "./utils.js"; 
+import * as musicService from "./musicService.js";
+import { getRect } from "./trackRect.js"; 
+
+let rect = getRect(); 
+
+//declarations
 const bar = document.querySelector("#progress") as HTMLDivElement; 
 
-export function initializeBar() { }
+//initialize interval to run update progress every 500 ms. 
+let interval = setInterval(updateProgress, 500);
+
+//keep track of the bar sliding listeners
+let hasListeners = false; 
+
+//event listener for sliding the slider
+document.getElementById("slider")!.addEventListener("mousedown", startMove);
+
+//event listener for the tracking bar
+document.getElementById("clickTrack")!.addEventListener("click", movePlayback); 
 
 
+
+//update the bars width
 export function updateBar(percent: number): void {
     bar.style.width = String(percent) + '%';
  }
 
-export function getRect() { } //nerd
+//starts the movement of the slider
+function startMove() {
+  clearInterval(interval); 
+  interval = 0; 
+
+  document.addEventListener("mouseup", selectTime);
+  hasListeners = true; 
+}
+
+//selects the time on click. 
+async function selectTime(movement: MouseEvent) { 
+
+  //get the percentage of progress
+  const percent: number = mouseLocation(movement, rect); 
+
+  //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
+  const time = Math.floor(percent * musicService.getDuration()/ 100); 
+
+  //have to account for the fact I have to round inside of time when using the percents
+  const fixedPercent = time / musicService.getDuration() * 100; 
+
+  //update the bar state
+  updateBar(fixedPercent)
+
+  //move to the new time
+  await musicService.seekToTime(time);
+
+  //restart the timer to udpate the interval
+  interval = setInterval(updateProgress, 500);
+
+  //if listeners exist, remove them. 
+  if (hasListeners) {
+    document.removeEventListener("mouseup", selectTime);
+    hasListeners = false; 
+  }
+
+}
+
+//moves the playback fill when you click a place on the bar. 
+function movePlayback(click: MouseEvent) {
+    clearInterval(interval); 
+    interval = 0;
+    selectTime(click); 
+}
+
+

@@ -4,13 +4,12 @@ import { formatTime } from "./utils.js";
 import { getCurrentTime, getDuration, getQueue } from "./musicService.js"; 
 import { updateBar } from "./slider.js"
 
-let annotations: GuidedListener; 
-
 
 //updates the track name, duration time, composer. 
 export function updateTrack(): void {
 
   const annotations: GuidedListener = createAnnotations(); 
+
   //get the div element that stores the track information. 
   const trackname: HTMLDivElement = document.getElementById("trackName") as HTMLDivElement;
 
