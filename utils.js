@@ -3,13 +3,6 @@ export function mouseLocation(movement, rect) {
     const x = movement.clientX - rect.left;
     //determine how far across the screen the bar is. 
     const percent = (x / rect.width) * 100;
-    const track = document.getElementById("track");
-    const style = getComputedStyle(track);
-    const currentRect = document.getElementById("track").getBoundingClientRect();
-    console.log({
-        cached: rect,
-        current: currentRect,
-    });
     //stop it from going over the edge. 
     return Math.max(0, Math.min(percent, 100));
 }

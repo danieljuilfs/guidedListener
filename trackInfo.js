@@ -13,7 +13,7 @@ export function updateTrack() {
     //set the track name
     trackname.textContent = annotations.title;
     //set the album name
-    album.textContent = annotations.album;
+    album.textContent = "Album: " + annotations.album;
     album.href = annotations.url;
     //get the composer from the attributes section. 
     const composer = annotations.composer;
@@ -23,7 +23,7 @@ export function updateTrack() {
     //get the duration object from the DOM
     const duration = document.getElementById("duration");
     //get the duratino from the queued object, which is in millseconds. convert to seconds. 
-    const time = getQueue().item(0).attributes.durationInMillis / 1000;
+    const time = annotations.duration;
     //set the duration for the track. 
     duration.textContent = formatTime(time);
 }

@@ -12,6 +12,8 @@ if (!jwt) {
 const songId = "1110860977";
 //create the annotations
 createAnnotations();
+//initialize the track information. 
+updateTrack();
 //Event listener listening for the play button to be clicked. 
 document.getElementById("playButton").addEventListener("click", musicService.togglePlay);
 //initialize the musicKit Instance. 

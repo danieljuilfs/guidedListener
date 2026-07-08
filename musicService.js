@@ -3,8 +3,8 @@ let isReady = false;
 let queue;
 //initializes the musicKit and returns a promise 
 export function initMusicKit(developerToken, songId, updateButton, updateTrack) {
-    return new Promise((resolve, reject) => {
-        document.addEventListener('musickitloaded', async () => {
+    return new Promise(async (resolve, reject) => {
+        const initialize = async () => {
             try {
                 await MusicKit.configure({
                     developerToken,
@@ -14,9 +14,10 @@ export function initMusicKit(developerToken, songId, updateButton, updateTrack) 
                 });
                 //create the musicKit instance, and authorize the student. 
                 music = MusicKit.getInstance();
+                //authorize to apple music
                 await music.authorize();
+                //add the track to the queue
                 queue = await music.setQueue({ song: songId });
-                updateTrack();
                 //enable the play button once music kit is loaded.
                 let play = document.getElementById("playButton");
                 play.disabled = false;
@@ -31,7 +32,15 @@ export function initMusicKit(developerToken, songId, updateButton, updateTrack) 
             catch (err) {
                 reject(err);
             }
-        });
+        };
+        if (typeof MusicKit !== "undefined") {
+            // MusicKit already exists
+            await initialize();
+        }
+        else {
+            // Wait for MusicKit to load
+            document.addEventListener("musickitloaded", initialize, { once: true });
+        }
     });
 }
 export function togglePlay() {

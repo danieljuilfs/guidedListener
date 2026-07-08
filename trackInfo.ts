@@ -1,9 +1,18 @@
 import type { GuidedListener } from "./annotations.js";
-import { getAnnotations } from "./annotations.js"; 
+import { getAnnotations, getNotes, getEnds } from "./annotations.js"; 
 import { formatTime } from "./utils.js"; 
 import { getCurrentTime, getDuration, getQueue } from "./musicService.js"; 
 import { updateBar } from "./slider.js"
 
+let counter: number = 0; 
+
+//get the notes
+const notes = getNotes(); 
+
+//get the endtimes
+const ends = getEnds(); 
+
+let nextTime: number = ends[counter]!
 
 //updates the track name, duration time, composer. 
 export function updateTrack(): void {
@@ -22,7 +31,7 @@ export function updateTrack(): void {
   trackname.textContent = annotations.title;  
 
   //set the album name
-  album.textContent = annotations.album; 
+  album.textContent = "Album: " + annotations.album; 
   album.href = annotations.url; 
 
   //get the composer from the attributes section. 
@@ -35,7 +44,7 @@ export function updateTrack(): void {
   const duration: HTMLDivElement = document.getElementById("duration") as HTMLDivElement; 
 
   //get the duratino from the queued object, which is in millseconds. convert to seconds. 
-  const time: number = getQueue().item(0).attributes.durationInMillis / 1000
+  const time: number = annotations.duration; 
 
   //set the duration for the track. 
   duration.textContent = formatTime(time); 
@@ -45,13 +54,31 @@ export function updateProgress(): void {
 
   //get the element time is stored in
   let time = document.getElementById("pbTime") as HTMLDivElement;
+
+  const curTime = getCurrentTime(); 
   
   //update its text. 
-  time.textContent = formatTime(getCurrentTime()); 
+  time.textContent = formatTime(curTime); 
 
   //calculate how far the bar should be moved
-  const percent: number = (getCurrentTime()/ getDuration()) * 100; 
+  const percent: number = (curTime / getDuration()) * 100; 
 
   //update the bar state
   updateBar(percent)
+
+ const noteDiv: HTMLDivElement = document.getElementById("notes") as HTMLDivElement; 
+
+ //the breakpoint has been passed, check 
+ if (curTime > nextTime ) {
+        counter++; 
+    while (curTime > nextTime) {
+      counter++; 
+      nextTime = ends[counter]!; 
+    }
+
+
+    noteDiv.textContent = notes[counter]!;
+    nextTime = ends[counter]!; 
+ }
+
 }
