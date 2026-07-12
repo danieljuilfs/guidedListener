@@ -26,7 +26,7 @@ export function updateTimer(movement: MouseEvent) {
 
 //creates the timer display on the mouse cursor on enter
 export function createTimer(movement: MouseEvent): void  {
-    rect = getRect(); 
+  rect = getRect(); 
   //listener to keep track of mouse movement
   document.addEventListener("mousemove", updateTimer); 
 
@@ -54,7 +54,7 @@ export function createTimer(movement: MouseEvent): void  {
 }
 
 export function timerPosition(movement: MouseEvent): void {
-
+  rect = getRect(); 
   //calculate the percent of the bar it should have filled
   let percent = mouseLocation(movement, rect);
 

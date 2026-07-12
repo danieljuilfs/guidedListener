@@ -3,6 +3,7 @@ html, body {
   margin: 0;
   padding: 0; 
   background: white;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
 }
 
 #album {
@@ -11,7 +12,7 @@ html, body {
     justify-items: center; 
     font-style: italic; 
     color: inherit; 
-    text-decoration: none; 
+    text-decoration: underline dotted; 
 }
 
 #album:hover {
@@ -29,16 +30,14 @@ html, body {
     grid-template-columns: max-content auto; 
     box-sizing: border-box; 
     max-width: 100%; 
-    height: 100%; 
-    margin-top: 1.5vh; 
+    height: 100%;  
 }
 
 #clickTrack {
     position: relative; 
     background: transparent; 
-    height: 3vh; 
+    height: 6vh; 
     margin: 0 1vw 0 1vw; 
-    
 }
 
 #composer {
@@ -54,22 +53,30 @@ html, body {
     box-sizing: border-box; 
 }
 
+#notes {
+    white-space: pre-wrap;
+    display: grid; 
+    font-size: 2rem; 
+    margin: 1vw 0 0 calc(1.5vw + 28px);
+    justify-content: center; 
+}
+
 #pbContainer {
     display: grid; 
     height: 100%; 
-    grid-template-rows: 20fr 40fr 40fr; 
+    grid-template-rows: 20fr 65fr 10fr; 
 }
 
 #playbackGrid{
     height: 100vh; 
     display: grid;
-    grid-template-rows: 50vh 50vh; 
+    grid-template-rows: 40% 60%; 
 }
 
 #playButton {
     width: 28px;
     height: 28px; 
-    margin-left: .5vw; 
+    margin: 1.5vh 0 0 .5vw;
     padding: 0; 
     background-color: white;
     border-radius: 50%; 
@@ -86,7 +93,7 @@ html, body {
 
 #sections {
     display: grid;
-    margin: 1vh 1vw 0 0; 
+    margin: 1vh 1vw 0 calc(1.5vw + 28px); 
     height: 100%; 
     border-radius: 1vw; 
     gap: 1px;
@@ -104,7 +111,6 @@ html, body {
     border-radius: .5vw;
     width: 100%;
     height: 100%;  
-
     display: grid;
     justify-content: center;
     align-items: center;

@@ -39,6 +39,7 @@ export function createTimer(movement) {
     timerPosition(movement);
 }
 export function timerPosition(movement) {
+    rect = getRect();
     //calculate the percent of the bar it should have filled
     let percent = mouseLocation(movement, rect);
     //calculate what the time display should be and format it. 

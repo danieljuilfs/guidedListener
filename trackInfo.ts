@@ -7,17 +7,24 @@ import { updateBar } from "./slider.js"
 let counter: number = 0; 
 
 //get the notes
-const notes = getNotes(); 
+let notes: string[]; 
 
 //get the endtimes
-const ends = getEnds(); 
+let ends: number[];
 
-let nextTime: number = ends[counter]!
+let nextTime: number; 
 
 //updates the track name, duration time, composer. 
 export function updateTrack(): void {
 
   const annotations: GuidedListener = getAnnotations(); 
+
+  //moved initialization inside the function to prevent stale initialization. 
+  ends = getEnds(); 
+
+  notes = getNotes(); 
+  
+  nextTime = ends[counter]!;
 
   //get the div element that stores the track information. 
   const trackname: HTMLDivElement = document.getElementById("trackName") as HTMLDivElement;
@@ -70,15 +77,27 @@ export function updateProgress(): void {
 
  //the breakpoint has been passed, check 
  if (curTime > nextTime ) {
-        counter++; 
+    counter++; 
+    nextTime = ends[counter]!; 
+
+    //need to handle playback state updates where someone jumps ahead in the bar. 
     while (curTime > nextTime) {
       counter++; 
       nextTime = ends[counter]!; 
     }
 
-
     noteDiv.textContent = notes[counter]!;
-    nextTime = ends[counter]!; 
  }
+ //need to handle playbackstates where someone jumps backwards in the bar. 
+else if (counter > 0 && curTime < ends[counter-1]!) {
+  counter--;
+  nextTime = ends[counter]!;
 
+  while (curTime< ends[counter-1]!) {
+      counter--;
+      nextTime = ends[counter]!;
+  }
+
+  noteDiv.textContent = notes[counter]!;
+  }
 }

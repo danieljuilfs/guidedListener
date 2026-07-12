@@ -32,6 +32,7 @@ function startMove() {
 }
 //selects the time on click. 
 async function selectTime(movement) {
+    rect = getRect();
     //get the percentage of progress
     const percent = mouseLocation(movement, rect);
     //calculate where the song should be. have to divide by 100 here as we need to return a percent. 

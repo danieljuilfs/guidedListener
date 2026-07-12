@@ -15,4 +15,6 @@ export interface section {
 }
 export declare function createAnnotations(): void;
 export declare function getAnnotations(): GuidedListener;
+export declare function getNotes(): string[];
+export declare function getEnds(): number[];
 //# sourceMappingURL=annotations.d.ts.map

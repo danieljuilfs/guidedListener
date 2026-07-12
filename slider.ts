@@ -13,16 +13,16 @@ import {getDuration, seekToTime } from "./musicService.js";
 import { getRect } from "./trackRect.js"; 
 
 //declarations
-const bar = document.querySelector("#progress") as HTMLDivElement; 
+const bar: HTMLDivElement = document.querySelector("#progress") as HTMLDivElement; 
 
 //get the DomRect
-let rect = getRect(); 
+let rect: DOMRect = getRect(); 
 
 //initialize interval to run update progress every 500 ms. 
-let interval = setInterval(updateProgress, 500);
+let interval: number = setInterval(updateProgress, 500);
 
 //keep track of the bar sliding listeners
-let hasListeners = false; 
+let hasListeners: boolean = false; 
 
 //event listener for sliding the slider
 document.getElementById("slider")!.addEventListener("mousedown", startMove);
@@ -47,6 +47,8 @@ function startMove(): void  {
 //selects the time on click. 
 async function selectTime(movement: MouseEvent): Promise<void> { 
 
+  rect = getRect(); 
+  
   //get the percentage of progress
   const percent: number = mouseLocation(movement, rect); 
 

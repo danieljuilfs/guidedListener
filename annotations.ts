@@ -3,6 +3,7 @@ export interface GuidedListener {
   composer: string; 
   album: string; 
   performer: string;
+  id: number; 
   url: string; 
   duration: number; 
   sections: section[]; 
@@ -30,6 +31,7 @@ const input: string = `
   "composer" : "Franz Joseph Haydn" ,
   "album" : "Haydn: Symphonies Nos. 88, 101 'Clock' & 104 'London' (Live)" ,
   "performer" : "Philharmonia Baroque Orchestra & Nicholas McGegan",
+  "id" : 1110860977,
   "url" : "https://music.apple.com/us/album/symphony-no-88-in-g-major-hob-i-88-iv-finale-allegro/1110860778?i=1110860977",
   "duration": 246, 
   "sections" : [{ 
@@ -46,22 +48,26 @@ const input: string = `
     {
     "name" : "A’",
     "startTime" : 96,
-    "endTime" : 116
+    "endTime" : 116,
+    "text" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. \\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     },
     {
     "name": "C",
     "startTime": 116,
-    "endTime" : 158
+    "endTime" : 158,
+    "text" : "  "
     },
     {
     "name": "A’’",
     "startTime": 158,
-    "endTime": 185
+    "endTime": 185,
+    "text" : "• The old observatory overlooked a valley where morning fog lingered long after sunrise.\\n• Copper leaves drifted across the stone path, gathering in quiet corners beneath the benches.\\n• A distant train echoed through the hills while the town slowly came to life.\\n• Every clock in the workshop ticked at a slightly different rhythm, creating a gentle chorus.\\n• Fresh bread, roasted coffee, and rain-soaked pavement filled the cool autumn air.\\n• Hidden among the shelves was a journal containing sketches, maps, and unfinished ideas.\\n• The lighthouse beam swept across the waves, disappearing briefly behind rolling mist.\\n• Bright constellations emerged one by one as the last streaks of orange faded from the horizon.\\n• Engineers adjusted the final parameters before initiating the overnight systems test.\\n• Even the smallest details often reveal the most interesting stories when examined closely."
     },
     {
     "name": "Coda",
     "startTime": 185,
-    "endTime": 246
+    "endTime": 246,
+    "text" : "Don't forget to drink your ovaltine"
     }
   ]
 }`
@@ -70,8 +76,6 @@ const input: string = `
 
   //holds the column titles for the sections
   const columns: string[] = []; 
-
-
 
   //get the div element that stores the track information. 
   const sectionDiv: HTMLDivElement = document.getElementById("sections") as HTMLDivElement;
@@ -96,10 +100,10 @@ const input: string = `
   //get the width of the clickTrack so we can dynamically compute the width of the sections
   const track: HTMLDivElement = document.getElementById("clickTrack") as HTMLDivElement; 
 
-  const paddingLeft: number = parseFloat(getComputedStyle(track).paddingLeft); 
+  //const paddingLeft: number = parseFloat(getComputedStyle(track).paddingLeft); 
 
   //get the correct left padding by getting tracks Left rect and adding its padding. 
-  sectionDiv.style.paddingLeft = `${track.getBoundingClientRect().left + paddingLeft}px`; 
+  //sectionDiv.style.paddingLeft = `${track.getBoundingClientRect().left + paddingLeft}px`; 
 
   //set the width based on the size of each container
   sectionDiv.style.gridTemplateColumns = columns.join(" "); 
@@ -107,8 +111,7 @@ const input: string = `
   //set the starting text for note div. 
   const noteDiv: HTMLDivElement = document.getElementById("notes") as HTMLDivElement; 
 
-  noteDiv.textContent = notes[0]!; 
-
+  noteDiv.textContent = notes[0]!;
  }
 
 export function getAnnotations(): GuidedListener {
