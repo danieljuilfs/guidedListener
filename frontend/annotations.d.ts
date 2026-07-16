@@ -3,6 +3,7 @@ export interface GuidedListener {
     composer: string;
     album: string;
     performer: string;
+    id: number;
     url: string;
     duration: number;
     sections: section[];

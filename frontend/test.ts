@@ -16,6 +16,10 @@ if (!jwt) {
 //temporary hardcoded song id
 const songId: string = "1110860977"
 
+//get the track id from the database
+//construct the json. 
+
+
 //create the annotations
 createAnnotations(); 
 

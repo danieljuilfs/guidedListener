@@ -9,6 +9,7 @@ export function createAnnotations() {
   "composer" : "Franz Joseph Haydn" ,
   "album" : "Haydn: Symphonies Nos. 88, 101 'Clock' & 104 'London' (Live)" ,
   "performer" : "Philharmonia Baroque Orchestra & Nicholas McGegan",
+  "id" : 1110860977,
   "url" : "https://music.apple.com/us/album/symphony-no-88-in-g-major-hob-i-88-iv-finale-allegro/1110860778?i=1110860977",
   "duration": 246, 
   "sections" : [{ 

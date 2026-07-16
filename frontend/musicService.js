@@ -73,7 +73,9 @@ export function getDuration() {
     return music.currentPlaybackDuration;
 }
 export function seekToTime(time) {
+    console.log("seeked time:" + time);
     music.seekToTime(time);
+    console.log("current time:" + music.currentPlaybackTime);
 }
 export function getPlaybackState() {
     return music.playbackState;

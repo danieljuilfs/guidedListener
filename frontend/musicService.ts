@@ -94,7 +94,9 @@ export function getDuration(): number {
 }
 
 export function seekToTime(time: number) {
+    console.log("seeked time:" + time); 
     music.seekToTime(time); 
+    console.log("current time:" + music.currentPlaybackTime); 
  }
 
 export function getPlaybackState() {

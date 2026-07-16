@@ -53,7 +53,7 @@ async function selectTime(movement: MouseEvent): Promise<void> {
   const percent: number = mouseLocation(movement, rect); 
 
   //calculate where the song should be. have to divide by 100 here as we need to return a percent. 
-  const time = Math.floor(percent * getDuration()/ 100); 
+  const time = percent * getDuration()/ 100; 
 
   //have to account for the fact I have to round inside of time when using the percents
   const fixedPercent = time / getDuration() * 100; 
