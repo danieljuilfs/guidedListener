@@ -3,9 +3,8 @@ let music: any;
 let isReady: boolean = false; 
 let queue: any; 
 
-
 //initializes the musicKit and returns a promise 
-export function initMusicKit(developerToken: string, songId: string, updateButton:() => void, updateTrack: () => void ): Promise<void> {
+export function initMusicKit(developerToken: string, updateButton:() => void, updateTrack: () => void ): Promise<void> {
   return new Promise(async (resolve, reject) => {
     const initialize = async () => {
       try {
@@ -16,14 +15,9 @@ export function initMusicKit(developerToken: string, songId: string, updateButto
             },
         });
 
-        //create the musicKit instance, and authorize the student. 
+
+        //create the musicKit
         music = MusicKit.getInstance();
-
-        //authorize to apple music
-        await music.authorize();
-
-        //add the track to the queue
-        queue = await music.setQueue({ song: songId });
 
         //enable the play button once music kit is loaded.
         let play = document.getElementById("playButton") as HTMLButtonElement;
@@ -58,8 +52,16 @@ export function initMusicKit(developerToken: string, songId: string, updateButto
   });
 }
 
+export async function authorize(): Promise<void> {
+  await music.authorize();
+}
 
-export function togglePlay(): void { 
+export async function setQueue(songId: string): Promise<void> {
+  //add the track to the queue
+  queue = await music.setQueue({ song: songId });
+}
+
+export async function togglePlay(): Promise<void> { 
 //handles the playing/pausing
   if (!isReady) return; 
 
@@ -94,9 +96,7 @@ export function getDuration(): number {
 }
 
 export function seekToTime(time: number) {
-    console.log("seeked time:" + time); 
-    music.seekToTime(time); 
-    console.log("current time:" + music.currentPlaybackTime); 
+  music.seekToTime(time); 
  }
 
 export function getPlaybackState() {
@@ -104,5 +104,10 @@ export function getPlaybackState() {
  }
 
 export function getQueue() {
-    return queue; 
+    return music.nowPlayingItem?.id
  }
+
+ export function isAuthorized(): boolean {
+  return music.isAuthorized; 
+ }
+

@@ -19,3 +19,16 @@ export function formatTime(seconds: number): string {
 
     return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
+
+export function debug(msg: string) {
+  console.log("inside debug");
+    const div = document.createElement("div");
+    div.textContent = msg;
+    div.style.position = "fixed";
+    div.style.top = "0";
+    div.style.left = "0";
+    div.style.background = "white";
+    div.style.color = "black";
+    div.style.zIndex = "9999";
+    document.body.appendChild(div);
+}

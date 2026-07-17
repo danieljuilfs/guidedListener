@@ -3,6 +3,7 @@ import * as musicService from "./musicService.js";
 import { createAnnotations} from "./annotations.js"; 
 import { updateTrack } from "./trackInfo.js"
 import type { GuidedListener } from "./annotations.js"
+import { debug } from "./utils.js"; 
 import "./hoverTimer.js"; 
 import "./trackInfo.js"; 
 
@@ -14,21 +15,17 @@ if (!jwt) {
     throw new Error("JWT is missing");
 }
 
-const response = await fetch("http://localhost:3001/annotations/1"); 
+const response = await fetch("http://192.168.1.13:3001/annotations/1"); 
 
 if (!response.ok) {
     throw new Error("Failed to load track.");
 }
 
- 
+//get the track id from the database
 const json: GuidedListener = await response.json(); 
 
-const songId = String(json.trackid); 
-
-
-//get the track id from the database
-//construct the json. 
-
+//apple music expects the trackid as a string funnily enough. 
+const songId: string = String(json.trackid); 
 
 //create the annotations
 createAnnotations(json); 
@@ -36,11 +33,24 @@ createAnnotations(json);
 //initialize the track information. 
 updateTrack(); 
 
-//Event listener listening for the play button to be clicked. 
-document.getElementById("playButton")!.addEventListener("click", musicService.togglePlay);
+//check to see if the user is authorized on click. and print 
+
+document.getElementById("playButton")!.addEventListener("click", async () => {
+
+  //if the user isn't authorized, auth
+  if (!musicService.isAuthorized()) await musicService.authorize(); 
+
+  //if the song isnt in the queue, que it. 
+  if (musicService.getQueue() !== songId) await musicService.setQueue(songId);
+
+  //otherwise, just play/pause. 
+  await musicService.togglePlay(); 
+
+});
+
 
 //initialize the musicKit Instance. 
-await musicService.initMusicKit(jwt, songId, updateButton, updateTrack); 
+await musicService.initMusicKit(jwt, updateButton, updateTrack); 
 
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
 function updateButton() {

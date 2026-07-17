@@ -1,8 +1,9 @@
+import { debug } from "./utils.js";
 let music;
 let isReady = false;
 let queue;
 //initializes the musicKit and returns a promise 
-export function initMusicKit(developerToken, songId, updateButton, updateTrack) {
+export function initMusicKit(developerToken, updateButton, updateTrack) {
     return new Promise(async (resolve, reject) => {
         const initialize = async () => {
             try {
@@ -12,12 +13,8 @@ export function initMusicKit(developerToken, songId, updateButton, updateTrack) 
                         build: '0.01'
                     },
                 });
-                //create the musicKit instance, and authorize the student. 
+                //create the musicKit
                 music = MusicKit.getInstance();
-                //authorize to apple music
-                await music.authorize();
-                //add the track to the queue
-                queue = await music.setQueue({ song: songId });
                 //enable the play button once music kit is loaded.
                 let play = document.getElementById("playButton");
                 play.disabled = false;
@@ -43,7 +40,14 @@ export function initMusicKit(developerToken, songId, updateButton, updateTrack) 
         }
     });
 }
-export function togglePlay() {
+export async function authorize() {
+    await music.authorize();
+}
+export async function setQueue(songId) {
+    //add the track to the queue
+    queue = await music.setQueue({ song: songId });
+}
+export async function togglePlay() {
     //handles the playing/pausing
     if (!isReady)
         return;
@@ -73,14 +77,15 @@ export function getDuration() {
     return music.currentPlaybackDuration;
 }
 export function seekToTime(time) {
-    console.log("seeked time:" + time);
     music.seekToTime(time);
-    console.log("current time:" + music.currentPlaybackTime);
 }
 export function getPlaybackState() {
     return music.playbackState;
 }
 export function getQueue() {
-    return queue;
+    return music.nowPlayingItem?.id;
+}
+export function isAuthorized() {
+    return music.isAuthorized;
 }
 //# sourceMappingURL=musicService.js.map
