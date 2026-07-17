@@ -1,20 +1,23 @@
 export interface GuidedListener {
+    pk: number;
     title: string;
     composer: string;
     album: string;
     performer: string;
-    id: number;
-    url: string;
+    trackid: number;
+    uri: string;
     duration: number;
     sections: section[];
 }
 export interface section {
-    name: string;
-    startTime: number;
-    endTime: number;
-    text?: string;
+    annotationid: number;
+    sectionnumber: number;
+    sectionname: string;
+    starttime: number;
+    endtime: number;
+    notes?: string;
 }
-export declare function createAnnotations(): void;
+export declare function createAnnotations(request: GuidedListener): void;
 export declare function getAnnotations(): GuidedListener;
 export declare function getNotes(): string[];
 export declare function getEnds(): number[];

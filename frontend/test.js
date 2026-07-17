@@ -9,10 +9,16 @@ const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJp
 if (!jwt) {
     throw new Error("JWT is missing");
 }
-//temporary hardcoded song id
-const songId = "1110860977";
+const response = await fetch("http://localhost:3001/annotations/1");
+if (!response.ok) {
+    throw new Error("Failed to load track.");
+}
+const json = await response.json();
+const songId = String(json.trackid);
+//get the track id from the database
+//construct the json. 
 //create the annotations
-createAnnotations();
+createAnnotations(json);
 //initialize the track information. 
 updateTrack();
 //Event listener listening for the play button to be clicked. 

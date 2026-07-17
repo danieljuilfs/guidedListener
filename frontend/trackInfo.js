@@ -24,7 +24,7 @@ export function updateTrack() {
     trackname.textContent = annotations.title;
     //set the album name
     album.textContent = "Album: " + annotations.album;
-    album.href = annotations.url;
+    album.href = annotations.uri;
     //get the composer from the attributes section. 
     const composer = annotations.composer;
     //if there is a composer set the composer in the heading

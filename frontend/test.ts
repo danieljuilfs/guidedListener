@@ -2,6 +2,7 @@
 import * as musicService from "./musicService.js";
 import { createAnnotations} from "./annotations.js"; 
 import { updateTrack } from "./trackInfo.js"
+import type { GuidedListener } from "./annotations.js"
 import "./hoverTimer.js"; 
 import "./trackInfo.js"; 
 
@@ -13,15 +14,24 @@ if (!jwt) {
     throw new Error("JWT is missing");
 }
 
-//temporary hardcoded song id
-const songId: string = "1110860977"
+const response = await fetch("http://localhost:3001/annotations/1"); 
+
+if (!response.ok) {
+    throw new Error("Failed to load track.");
+}
+
+ 
+const json: GuidedListener = await response.json(); 
+
+const songId = String(json.trackid); 
+
 
 //get the track id from the database
 //construct the json. 
 
 
 //create the annotations
-createAnnotations(); 
+createAnnotations(json); 
 
 //initialize the track information. 
 updateTrack(); 

@@ -39,7 +39,7 @@ export function updateTrack(): void {
 
   //set the album name
   album.textContent = "Album: " + annotations.album; 
-  album.href = annotations.url; 
+  album.href = annotations.uri; 
 
   //get the composer from the attributes section. 
   const composer: string = annotations.composer; 
