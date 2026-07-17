@@ -1,4 +1,3 @@
-import { debug } from "./utils.js";
 let music;
 let isReady = false;
 let queue;
