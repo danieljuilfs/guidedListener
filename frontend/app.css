@@ -81,6 +81,14 @@ html, body {
     padding: 0; 
     background-color: white;
     border-radius: 50%; 
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+#playButton:focus,
+#playButton:focus-visible {
+    outline: none;
+    box-shadow: none;
 }
 
 #progress {
@@ -139,18 +147,56 @@ html, body {
     font-size: 1.5rem; 
 }
 
+#rotateWarning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: white; 
+    font-size: 1.5rem;
+    padding: 2rem;
+}
+
+
+@media (orientation: portrait) {
+    #rotateWarning {
+        display: flex;
+    }
+}
+
 @media (orientation: landscape) and (max-height: 430px) {
 
     #track {
         height: 5vh; 
     }
 
-    #bottom { 
-        outline: 2px solid purple; 
-    }
-
     #playbackGrid {
         grid-template-rows: minmax(0, 60fr) minmax(0, 40fr); 
 
     }
+
+    #sections {
+        margin-top: 2vh; 
+        margin-bottom: 2vh;
+    }
+    #sections > div {
+        font-size: 1.25rem; 
+    }
+
+    #notes {
+        font-size: 1.5rem; 
+        overflow-y: auto;
+    }
+
+    #composer {
+        height: 1.5rem; 
+    }
+
+    #trackName {
+        font-size: 1.25rem; 
+    }
+
 }

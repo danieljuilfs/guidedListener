@@ -2,7 +2,6 @@
 import * as musicService from "./musicService.js";
 import { createAnnotations } from "./annotations.js";
 import { updateTrack } from "./trackInfo.js";
-import { debug } from "./utils.js";
 import "./hoverTimer.js";
 import "./trackInfo.js";
 //the JWT for accessing the user 
@@ -30,6 +29,9 @@ document.getElementById("playButton").addEventListener("click", async () => {
     //if the song isnt in the queue, que it. 
     if (musicService.getQueue() !== songId)
         await musicService.setQueue(songId);
+    if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+    }
     //otherwise, just play/pause. 
     await musicService.togglePlay();
 });
