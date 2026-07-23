@@ -15,7 +15,6 @@ export function createAnnotations(request) {
         newDiv.textContent = curSection.sectionname;
         //calculate how long each section is, and then add it to the array for doing output. 
         const duration = curSection.endtime - curSection.starttime;
-        console.log(duration);
         columns.push(`${duration}fr`);
         //if the note isn't null, push it to the array, otherwise push an empty string. 
         notes.push(curSection.notes != null ? curSection.notes : " ");

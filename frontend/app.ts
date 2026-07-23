@@ -42,7 +42,7 @@ document.getElementById("playButton")!.addEventListener("click", async () => {
   //if the song isnt in the queue, que it. 
   if (musicService.getQueue() !== songId) await musicService.setQueue(songId);
 
-   if (!document.fullscreenElement) {
+   if (!document.fullscreenElement && window.matchMedia("(max-width: 767)").matches) {
         await document.documentElement.requestFullscreen();
     }
 
@@ -53,10 +53,10 @@ document.getElementById("playButton")!.addEventListener("click", async () => {
 
 
 //initialize the musicKit Instance. 
-await musicService.initMusicKit(jwt, updateButton, updateTrack); 
+await musicService.initMusicKit(jwt, updateButton, updateTrack, "load"); 
 
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
-function updateButton() {
+export function updateButton() {
   const playBtn = document.getElementById("playBtn") as HTMLSpanElement;
   const state: number = musicService.getPlaybackState(); 
 

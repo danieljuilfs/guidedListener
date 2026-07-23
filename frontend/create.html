@@ -1,0 +1,44 @@
+<html lang="en">
+    <head>    
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="create.css">
+        <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"></script>
+        <script type="module" src="create.js"></script>
+    </head>
+
+    <body>
+        <div id="addTrack">
+            <div>
+                <label #id="tracklabel">Track Link</label>
+                <input type="text" id="trackLink" placeholder="Enter Apple Music URL here"></input>
+                <button id="loadTrack">Load</button>
+            </div>
+        </div>
+        <div #id="customizeTrack">
+            <div #id="composer">
+                <label #id="composerLabel" class="label" >Composer</label>
+                <input type="text" id="composerInput" title="change the displayed composer at the top of the page" placeholder=""></input>
+            </div>
+            <div #id="trackName">
+                <label #id="trackLabel" class="label" >Track Name</label>
+                <input type="text" id="trackInput" title="Chance the track name displayed on the page" placeholder=""></input>
+            </div>
+            <div #id="album">
+                <label #id="albumLabel" class="label" >Album Name</label>
+                <input type="text" id="trackInput" title="Change the title of the apple music name at the bottom of the page. " placeholder=""></input>
+            </div>
+        </div>
+        <div id="sectionCreate"></div>
+
+        </div>
+        <div id="controls">
+            <button id="playButton" type="button" disabled><span class="material-icons" id="playBtn" style="cursor: pointer;">play_arrow</span></button>
+            <div id="clickTrack" style="cursor: pointer;">
+                <div id="track">
+                    <div id="progress"></div>
+                    <div id="slider" style="cursor: pointer;"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

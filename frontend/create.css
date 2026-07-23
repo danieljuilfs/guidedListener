@@ -1,0 +1,198 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0; 
+  background: white;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; 
+}
+
+#album {
+    font-size: 1.25rem; 
+    display: grid;
+    justify-items: center; 
+    font-style: italic; 
+    color: inherit; 
+    text-decoration: underline dotted; 
+}
+
+#album:hover {
+    color: #0000EE; 
+}
+
+#bottom {
+    display: grid; 
+    grid-template-rows: 90fr 10fr; 
+}
+
+#controls {
+    display: grid;
+    grid-template-columns: max-content auto; 
+    box-sizing: border-box; 
+    max-width: 100%; 
+    height: 100%; 
+}
+
+
+#clickTrack {
+    position: relative; 
+    background: transparent; 
+    height: 6vh; 
+    margin: 0 1vw 0 1vw; 
+}
+
+
+#composer {
+    margin: 0 0 1vh 0; 
+}
+
+#identifiers {
+    margin-left: 2vw; 
+    height: 100%; 
+    display: grid; 
+    grid-template-rows: 45fr 35fr 25fr; 
+    padding-top: 3vh; 
+    box-sizing: border-box; 
+}
+
+#notes {
+    white-space: pre-wrap;
+    display: grid; 
+    font-size: 2rem; 
+    margin: 0 0 0 calc(1.5vw + 36px);
+    justify-content: center; 
+}
+
+#pbContainer {
+    display: grid; 
+    height: 100%; 
+    grid-template-rows: 20fr 65fr 10fr; 
+}
+
+#playbackGrid{
+    height: 100dvh; 
+    display: grid;
+    grid-template-rows: minmax(0, 40fr) minmax(0, 60fr);
+}
+
+#playButton {
+    width: 36px;
+    height: 36px; 
+    margin: 1.5vh 0 0 .5vw;
+    padding: 0; 
+    background-color: white;
+    border-radius: 50%; 
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+#playButton:focus,
+#playButton:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+#progress {
+    position: absolute; 
+    height: 100%; 
+    width: 0vw; 
+    background: #ffd932; 
+    border-color: #cfb234; 
+    border-width: .1vh; 
+}
+
+#sections {
+    display: grid;
+    margin: 1vh 1vw 0 calc(1.5vw + 36px); 
+    height: 100%; 
+    border-radius: 1vw; 
+    gap: 1px;
+    place-items: center; 
+}
+
+#sections > div:nth-child(odd) {
+    background: #366eab;
+}
+#sections > div:nth-child(even) {
+    background: #5aa8ff;
+}
+
+#sections > div {
+    border-radius: .5vw;
+    width: 100%;
+    height: 100%;  
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    color: white; 
+    font-size: 1.5rem; 
+}
+
+#timers {
+    display: grid; 
+    grid-template-columns: max-content max-content max-content; 
+    grid-gap: 3px; 
+}
+
+#track {
+    position: relative;  
+    background: black;
+    height: .6vh; 
+    border-radius: 2px;
+    left: 0; 
+    top: 50%;
+}
+
+#addTrack {
+    display: grid;
+    justify-items: center;
+    margin-top: 2vh; 
+    grid-template-rows: 1fr; 
+}
+#trackLink {
+    width: 25vw; 
+}
+
+#trackName {
+    font-size: 1.5rem; 
+}
+
+
+@media (orientation: portrait) {
+    #rotateWarning {
+        display: flex;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 430px) {
+
+    #track {
+        height: 5vh; 
+    }
+
+    #playbackGrid {
+        grid-template-rows: minmax(0, 60fr) minmax(0, 40fr); 
+
+    }
+
+    #sections {
+        margin-top: 2vh; 
+        margin-bottom: 2vh;
+    }
+    #sections > div {
+        font-size: 1.25rem; 
+    }
+
+    #notes {
+        font-size: 1.5rem; 
+        overflow-y: auto;
+    }
+
+    #composer {
+        height: 1.5rem; 
+    }
+
+    #trackName {
+        font-size: 1.25rem; 
+    }
+
+}

@@ -1,42 +1,44 @@
-<head>    
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="app.css">
-    <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"></script>
-    <script type="module" src="app.js"></script>
+<html lang="en">
+    <head>    
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="app.css">
+        <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"></script>
+        <script type="module" src="app.js"></script>
 
-</head>
+    </head>
 
-<body>
-    <div id="rotateWarning">
-        Welcome to the Radford Guided Listener. Rotate your device to get the best experience. 
-    </div>
+    <body>
+        <div id="rotateWarning">
+            Welcome to the Radford Guided Listener. Rotate your device to get the best experience. 
+        </div>
 
- <div id="playbackGrid">
-        <div id="pbContainer">
-            <div id="identifiers">
-                <h1 id="composer"></h1>
-                <div id="trackName"></div>
-                <div id="timers">
-                    <div id="pbTime">0:00</div> 
-                    <div>/</div>
-                    <div id="duration">0:00</div>
+    <div id="playbackGrid">
+            <div id="pbContainer">
+                <div id="identifiers">
+                    <h1 id="composer"></h1>
+                    <div id="trackName"></div>
+                    <div id="timers">
+                        <div id="pbTime">0:00</div> 
+                        <div>/</div>
+                        <div id="duration">0:00</div>
+                    </div>
                 </div>
-            </div>
-            <div id="sections"></div>
-            <div id="controls">
-                <button id="playButton" type="button" disabled><span class="material-icons" id="playBtn" style="cursor: pointer;">play_arrow</span></button>
-                <div id="clickTrack" style="cursor: pointer;">
-                    <div id="track">
-                        <div id="progress"></div>
-                        <div id="slider" style="cursor: pointer;"></div>
+                <div id="sections"></div>
+                <div id="controls">
+                    <button id="playButton" type="button" disabled><span class="material-icons" id="playBtn" style="cursor: pointer;">play_arrow</span></button>
+                    <div id="clickTrack" style="cursor: pointer;">
+                        <div id="track">
+                            <div id="progress"></div>
+                            <div id="slider" style="cursor: pointer;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div id="bottom">
+                <div id="notes"></div>
+                <a id="album"></a>
+            </div>
+            
         </div>
-        <div id="bottom">
-            <div id="notes"></div>
-            <a id="album"></a>
-        </div>
-        
-    </div>
-</body>
+    </body>
+</html>

@@ -44,7 +44,6 @@ export function createAnnotations(request: GuidedListener) {
 
     //calculate how long each section is, and then add it to the array for doing output. 
     const duration: number = curSection.endtime - curSection.starttime;
-    console.log(duration); 
     columns.push(`${duration}fr`); 
 
     //if the note isn't null, push it to the array, otherwise push an empty string. 

@@ -4,7 +4,7 @@ let isReady: boolean = false;
 let queue: any; 
 
 //initializes the musicKit and returns a promise 
-export function initMusicKit(developerToken: string, updateButton:() => void, updateTrack: () => void ): Promise<void> {
+export function initMusicKit(developerToken: string, updateButton:() => void, updateTrack: () => void, type: string ): Promise<void> {
   return new Promise(async (resolve, reject) => {
     const initialize = async () => {
       try {
@@ -14,7 +14,6 @@ export function initMusicKit(developerToken: string, updateButton:() => void, up
                  build: '0.01' 
             },
         });
-
 
         //create the musicKit
         music = MusicKit.getInstance();
@@ -29,10 +28,15 @@ export function initMusicKit(developerToken: string, updateButton:() => void, up
         //listener that updates the state of the playbutton whenever music kit updates its state. 
         music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton); 
 
+        
         //listener that updates the state of the track.
-        music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateTrack);
+        
+        if (type === "load") {
+          music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateTrack)
+        };
 
         resolve();
+
       } catch (err) {
         reject(err);
       }
@@ -51,6 +55,8 @@ export function initMusicKit(developerToken: string, updateButton:() => void, up
     }
   });
 }
+
+
 
 export async function authorize(): Promise<void> {
   await music.authorize();

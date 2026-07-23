@@ -29,7 +29,7 @@ document.getElementById("playButton").addEventListener("click", async () => {
     //if the song isnt in the queue, que it. 
     if (musicService.getQueue() !== songId)
         await musicService.setQueue(songId);
-    if (!document.fullscreenElement) {
+    if (!document.fullscreenElement && window.matchMedia("(max-width: 767)").matches) {
         await document.documentElement.requestFullscreen();
     }
     //otherwise, just play/pause. 
