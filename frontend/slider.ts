@@ -19,7 +19,7 @@ const bar: HTMLDivElement = document.querySelector("#progress") as HTMLDivElemen
 let rect: DOMRect = getRect(); 
 
 //initialize interval to run update progress every 500 ms. 
-let interval: number = setInterval(updateProgress, 500);
+let interval: ReturnType<typeof setInterval> | undefined = setInterval(updateProgress, 500);
 
 //keep track of the bar sliding listeners
 let hasListeners: boolean = false; 
@@ -38,7 +38,7 @@ export function updateBar(percent: number): void {
 //starts the movement of the slider
 function startMove(): void  {
   clearInterval(interval); 
-  interval = 0; 
+  interval = undefined;  
 
   document.addEventListener("mouseup", selectTime);
   hasListeners = true; 
@@ -78,7 +78,7 @@ async function selectTime(movement: MouseEvent): Promise<void> {
 //moves the playback fill when you click a place on the bar. 
 function movePlayback(click: MouseEvent): void {
     clearInterval(interval); 
-    interval = 0;
+    interval = undefined; 
     selectTime(click); 
 }
 

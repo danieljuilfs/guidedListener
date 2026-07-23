@@ -6,17 +6,25 @@ html, body {
   font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; 
 }
 
-#album {
-    font-size: 1.25rem; 
-    display: grid;
-    justify-items: center; 
-    font-style: italic; 
-    color: inherit; 
-    text-decoration: underline dotted; 
+*:disabled {
+  background-color: dimgrey;
+  color: linen;
+  opacity: 1;
 }
 
-#album:hover {
-    color: #0000EE; 
+#album {
+
+}
+
+.label {
+    display: inline-block; 
+    width: 7vw; 
+    margin-bottom: 3vh; 
+    font-size: 1.25rem; 
+}
+
+#composerInput, #albumInput, #trackInput {
+    width: 15vw; 
 }
 
 #bottom {
@@ -32,6 +40,9 @@ html, body {
     height: 100%; 
 }
 
+#customizeTrack {
+    margin: 0 0 0 calc(1.5vw + 36px);
+}
 
 #clickTrack {
     position: relative; 
@@ -42,7 +53,6 @@ html, body {
 
 
 #composer {
-    margin: 0 0 1vh 0; 
 }
 
 #identifiers {
@@ -153,7 +163,6 @@ html, body {
 }
 
 #trackName {
-    font-size: 1.5rem; 
 }
 
 

@@ -36,9 +36,9 @@ document.getElementById("playButton").addEventListener("click", async () => {
     await musicService.togglePlay();
 });
 //initialize the musicKit Instance. 
-await musicService.initMusicKit(jwt, updateButton, updateTrack);
+await musicService.initMusicKit(jwt, updateButton, updateTrack, "load");
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
-function updateButton() {
+export function updateButton() {
     const playBtn = document.getElementById("playBtn");
     const state = musicService.getPlaybackState();
     if (!playBtn)

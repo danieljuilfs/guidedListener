@@ -105,6 +105,10 @@ export function seekToTime(time: number) {
   music.seekToTime(time); 
  }
 
+export function getInstance() {
+  return music; 
+}
+
 export function getPlaybackState() {
     return music.playbackState
  }
@@ -117,3 +121,6 @@ export function getQueue() {
   return music.isAuthorized; 
  }
 
+ export function getAttributes(): MusicKit.MediaItem{
+    return music.MediaItem; 
+ }

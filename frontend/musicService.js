@@ -2,7 +2,7 @@ let music;
 let isReady = false;
 let queue;
 //initializes the musicKit and returns a promise 
-export function initMusicKit(developerToken, updateButton, updateTrack) {
+export function initMusicKit(developerToken, updateButton, updateTrack, type) {
     return new Promise(async (resolve, reject) => {
         const initialize = async () => {
             try {
@@ -22,7 +22,10 @@ export function initMusicKit(developerToken, updateButton, updateTrack) {
                 //listener that updates the state of the playbutton whenever music kit updates its state. 
                 music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton);
                 //listener that updates the state of the track.
-                music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateTrack);
+                if (type === "load") {
+                    music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateTrack);
+                }
+                ;
                 resolve();
             }
             catch (err) {
@@ -78,6 +81,9 @@ export function getDuration() {
 export function seekToTime(time) {
     music.seekToTime(time);
 }
+export function getInstance() {
+    return music;
+}
 export function getPlaybackState() {
     return music.playbackState;
 }
@@ -86,5 +92,8 @@ export function getQueue() {
 }
 export function isAuthorized() {
     return music.isAuthorized;
+}
+export function getAttributes() {
+    return music.MediaItem;
 }
 //# sourceMappingURL=musicService.js.map

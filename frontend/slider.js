@@ -26,7 +26,7 @@ export function updateBar(percent) {
 //starts the movement of the slider
 function startMove() {
     clearInterval(interval);
-    interval = 0;
+    interval = undefined;
     document.addEventListener("mouseup", selectTime);
     hasListeners = true;
 }
@@ -54,7 +54,7 @@ async function selectTime(movement) {
 //moves the playback fill when you click a place on the bar. 
 function movePlayback(click) {
     clearInterval(interval);
-    interval = 0;
+    interval = undefined;
     selectTime(click);
 }
 //# sourceMappingURL=slider.js.map

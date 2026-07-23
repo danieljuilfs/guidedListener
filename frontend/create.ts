@@ -1,6 +1,5 @@
 import * as musicService from "./musicService.js";
-import { updateTrack } from "./trackInfo.js";
-import { updateButton } from "./app.js"; 
+let songId: string; 
 
 //the JWT for accessing the authentication 
 const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJpYXQiOjE3ODE2MjA1NjEsImV4cCI6MTc5NzE3MjU2MSwiaXNzIjoiTVdCNEs2RjNCMyJ9.5csNY_Z_PWoDdADL2_a9ihAdP5pbAA61gGR90hsIlM3PzvokPcVM-n-56a1QpX4LfyGZ39wWwvciPRm5nrgdyA" 
@@ -12,7 +11,7 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
     const url: string = input.value; 
 
     //if the url is malformed, alert the user
-    let songId: string; 
+
     if (!url.includes("?i=")) {
         alert("That is not a valid track address"); 
         return
@@ -23,18 +22,20 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
         songId = track!; 
     }
 
+    //initialize music kit once they authorize.
+    await musicService.initMusicKit(jwt, updateButton, displayTrack, "create"); 
+
     //if the user isn't authorized, auth
     if (!musicService.isAuthorized()) await musicService.authorize(); 
 
-    //initialize music kit once they authorize.
-    await musicService.initMusicKit(jwt, updateButton, updateTrack, "create"); 
+
 
 
 
 
 });
 
-export function displayTrack(kit: any) {
+async function displayTrack() {
     //title, composer, album, , duration 
     const titleDiv: HTMLDivElement = document.getElementById("trackName") as HTMLDivElement; 
 
@@ -42,7 +43,25 @@ export function displayTrack(kit: any) {
 
     const albumDiv: HTMLDivElement = document.getElementById("album") as HTMLDivElement; 
 
-    
+    //queue the track. 
+    await musicService.setQueue(songId); 
 
+    const attributes: MusicKit.MediaItem = musicService.getAttributes(); 
 
+    console.log(attributes); 
+}
+
+//update the play/pause button based on current playback status. checked every time the button is pressed. 
+export function updateButton() {
+  const playBtn = document.getElementById("playBtn") as HTMLSpanElement;
+  const state: number = musicService.getPlaybackState(); 
+
+  if (!playBtn) return; 
+
+  //2 is the enum returned for playing. hooray for magic numbers...
+  if (state === 2) {
+    playBtn.textContent = "pause"; } 
+  else {
+    playBtn.textContent = "play_arrow";
+  }
 }
