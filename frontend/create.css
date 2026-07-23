@@ -24,7 +24,7 @@ html, body {
 }
 
 #composerInput, #albumInput, #trackInput {
-    width: 15vw; 
+    width: 50vw; 
 }
 
 #bottom {
@@ -141,6 +141,7 @@ html, body {
     display: grid; 
     grid-template-columns: max-content max-content max-content; 
     grid-gap: 3px; 
+    margin-left: calc(1.5vw + 36px); 
 }
 
 #track {
@@ -160,7 +161,9 @@ html, body {
 }
 #trackLink {
     width: 25vw; 
+    margin-bottom: 1vh; 
 }
+
 
 #trackName {
 }

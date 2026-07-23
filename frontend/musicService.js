@@ -26,6 +26,8 @@ export function initMusicKit(developerToken, updateButton, updateTrack, type) {
                     music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateTrack);
                 }
                 ;
+                if (type === "create")
+                    updateTrack();
                 resolve();
             }
             catch (err) {
@@ -95,5 +97,10 @@ export function isAuthorized() {
 }
 export function getAttributes() {
     return music.MediaItem;
+}
+//returns a promise to get the track as the now playing item once the track has resolved. 
+export async function getTrack() {
+    console.log("returning track");
+    return music.queue.items[0];
 }
 //# sourceMappingURL=musicService.js.map

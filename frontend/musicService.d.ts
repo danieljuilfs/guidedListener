@@ -11,4 +11,5 @@ export declare function getPlaybackState(): any;
 export declare function getQueue(): any;
 export declare function isAuthorized(): boolean;
 export declare function getAttributes(): MusicKit.MediaItem;
+export declare function getTrack(): Promise<MusicKit.MediaItem>;
 //# sourceMappingURL=musicService.d.ts.map

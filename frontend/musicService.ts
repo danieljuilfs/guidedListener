@@ -35,6 +35,8 @@ export function initMusicKit(developerToken: string, updateButton:() => void, up
           music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateTrack)
         };
 
+        if (type === "create") updateTrack(); 
+
         resolve();
 
       } catch (err) {
@@ -124,3 +126,12 @@ export function getQueue() {
  export function getAttributes(): MusicKit.MediaItem{
     return music.MediaItem; 
  }
+
+//returns a promise to get the track as the now playing item once the track has resolved. 
+export async function getTrack(): Promise<MusicKit.MediaItem>{
+    console.log("returning track"); 
+    return music.queue.items[0]; 
+}
+
+
+
