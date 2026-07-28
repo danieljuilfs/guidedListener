@@ -26,7 +26,28 @@ body {
 .label {
     display: inline-block; 
     width: 7vw; 
-    font-size: 1.25rem; 
+    font-size: 1.25rem;
+}
+
+.measure {
+    font-size: 1rem; 
+    margin-left: 1vw;
+    box-sizing: border-box; 
+    width: max-content; 
+}
+
+.section {
+    border-radius: 1vw;   
+    display: grid;
+    background: #c0d5f6;  
+    grid-template-rows: 1fr 8fr 1fr; 
+    box-sizing: border-box; 
+}
+
+.sectionTitle {
+    display: grid; 
+    place-items: center;
+    font-size: 1.5rem; 
 }
 
 #addTrack {
@@ -155,32 +176,16 @@ body {
     border-width: .1vh; 
 }
 
-.section {
-    border-radius: 1vw;   
-    display: grid;
-    background: #c0d5f6;  
-    grid-template-rows: 1fr 8fr 1fr; 
-    box-sizing: border-box; 
-}
 
-.sectionTitle {
-    display: grid; 
-    place-items: center;
-    font-size: 1.5rem; 
-}
 
-.measure {
-    font-size: 1rem; 
-    margin-left: 1vw;
-    box-sizing: border-box; 
-    width: max-content; 
-}
 
 #sections {
     display: grid;
     margin: .5vh 1vw 0 calc(1.5vw + 36px); 
     height: 25%; 
     border-radius: 1vw; 
+    grid-auto-flow: column; 
+    grid-auto-columns: max-content; 
 }
 
 #timers {
