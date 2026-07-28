@@ -1,6 +1,11 @@
 let music;
 let isReady = false;
 let queue;
+let startTime = 0;
+let elapsedTime = 0;
+let started = false;
+//having to set my own variable because it takes longer for music kit to recognize it is not playing, than it does for it to stop playing. 
+let playing = false;
 //initializes the musicKit and returns a promise 
 export function initMusicKit(developerToken, updateButton, updateTrack, type) {
     return new Promise(async (resolve, reject) => {
@@ -21,6 +26,9 @@ export function initMusicKit(developerToken, updateButton, updateTrack, type) {
                 isReady = true;
                 //listener that updates the state of the playbutton whenever music kit updates its state. 
                 music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton);
+                music.addEventListener(MusicKit.Events.playbackStateDidChange, () => {
+                    console.log(MusicKit.playbackState);
+                });
                 //listener that updates the state of the track.
                 if (type === "load") {
                     music.addEventListener(MusicKit.Events.nowPlayingItemDidChange, updateTrack);
@@ -62,9 +70,13 @@ export async function togglePlay() {
     }
     if (music.isPlaying) {
         music.pause();
+        playing = false;
+        syncTime();
     }
     else {
         music.play();
+        playing = true;
+        syncTime();
     }
 }
 export function checkReady() {
@@ -73,7 +85,13 @@ export function checkReady() {
 export function getCurrentTime() {
     if (!music)
         return 0;
-    return music.currentPlaybackTime;
+    if (!playing)
+        return elapsedTime;
+    if (music.playbackState === 10)
+        return getDuration();
+    else {
+        return ((elapsedTime * 1000) + (performance.now() - startTime)) / 1000;
+    }
 }
 export function getDuration() {
     if (!music)
@@ -82,6 +100,8 @@ export function getDuration() {
 }
 export function seekToTime(time) {
     music.seekToTime(time);
+    elapsedTime = time;
+    startTime = performance.now();
 }
 export function getInstance() {
     return music;
@@ -100,7 +120,23 @@ export function getAttributes() {
 }
 //returns a promise to get the track as the now playing item once the track has resolved. 
 export async function getTrack() {
-    console.log("returning track");
     return music.queue.items[0];
+}
+function syncTime() {
+    console.log("performance.now(): " + performance.now() + " start:" + startTime);
+    if (music.playbackState === 1) {
+        startTime = performance.now();
+        started = true;
+    }
+    if (!started) {
+        startTime = performance.now();
+        started = true;
+    }
+    //if the music isn't playing, update the elapsed time by adding elapsed time
+    if (!playing) {
+        elapsedTime += (performance.now() - startTime) / 1000;
+    }
+    //when it starts, update the start time. 
+    startTime = performance.now();
 }
 //# sourceMappingURL=musicService.js.map

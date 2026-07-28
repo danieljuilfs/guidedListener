@@ -73,7 +73,7 @@ export function updateProgress(): void {
   //update the bar state
   updateBar(percent)
 
- const noteDiv: HTMLDivElement = document.getElementById("notes") as HTMLDivElement; 
+  const noteDiv: HTMLDivElement = document.getElementById("notes") as HTMLDivElement; 
 
  //the breakpoint has been passed, check 
  if (curTime > nextTime ) {

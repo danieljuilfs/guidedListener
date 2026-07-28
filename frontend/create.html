@@ -16,26 +16,29 @@
         </div>
         <div id="customizeTrack">
             <div id="composer">
-                <label id="composerLabel" class="label" >Composer</label>
-                <input type="text" id="composerInput" title="Change the displayed composer at the top of the page"></input>
+                <label id="composerLabel" class="label">Composer</label>
+                <input type="text" id="composerInput" title="Change the displayed composer at the top of the guided listener"></input>
             </div>
             <div id="trackName">
-                <label id="trackLabel" class="label" >Track Name</label>
-                <input type="text" id="trackInput" title="Change the track name displayed on the page"></input>
-            </div>
-            <div id="album">
-                <label id="albumLabel" class="label" >Album Name</label>
-                <input type="text" id="albumInput" title="Change the title of the apple music name at the bottom of the page. "></input>
+                <label id="trackLabel" class="label" >Title</label>
+                <input type="text" id="trackInput" title="Change the title displayed on the guided listener"></input>
             </div>
         </div>
-        <div id="timers">
-            <div id="pbTime">0:00</div> 
-            <div>/</div>
-            <div id="duration">0:00</div>
-        </div>
-        <div id="sectionCreate"></div>
 
+        <div id="topButtons">
+            <div id="addSection" class="disabledDiv">+section</div>
+            <div id="removeSection" class="disabledDiv">-section</div>
+            <div id="addCue" class="disabledDiv">+cue</div>
+            <div id="removeCue" class="disabledDiv">-cue</div>
         </div>
+        <div id="sections">
+        </div>
+
+        <div id="bottom">
+            <div id="createSection"></div>
+            <div id="createCue"></div>
+        </div>
+
         <div id="controls">
             <button id="playButton" type="button" disabled><span class="material-icons" id="playBtn" style="cursor: pointer;">play_arrow</span></button>
             <div id="clickTrack" style="cursor: pointer;">
@@ -44,6 +47,10 @@
                     <div id="slider" style="cursor: pointer;"></div>
                 </div>
             </div>
+        </div>
+        <div id="timers">
+            <div id="pbTime">0:00</div> 
+            <div id="duration">0:00</div>
         </div>
     </body>
 </html>

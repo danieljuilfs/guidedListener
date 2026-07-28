@@ -1,6 +1,5 @@
 import * as musicService from "./musicService.js";
 import { formatTime } from "./utils.js"; 
-import { updateProgress } from "./trackInfo.js";
 import "./hoverTimer.js"; 
 import "./trackInfo.js"; 
 
@@ -10,8 +9,13 @@ const titleInput: HTMLInputElement = document.getElementById("trackInput") as HT
 
 const composerInput: HTMLInputElement = document.getElementById("composerInput") as HTMLInputElement; 
 
-const albumInput: HTMLInputElement = document.getElementById("albumInput") as HTMLInputElement; 
+const addSection: HTMLDivElement = document.getElementById("addSection") as HTMLDivElement; 
 
+const removeSection: HTMLDivElement = document.getElementById("removeSection") as HTMLDivElement; 
+
+const addCue: HTMLDivElement = document.getElementById("addCue") as HTMLDivElement; 
+
+const removeCue: HTMLDivElement = document.getElementById("removeCue") as HTMLDivElement; 
 
 //change set the editor state on page load
 updateState(); 
@@ -55,12 +59,8 @@ async function displayTrack() {
 
     const durationDiv: HTMLDivElement = document.getElementById("duration") as HTMLDivElement; 
 
-    console.log("past song id")
-
     //get the track
     const track: MusicKit.MediaItem = await musicService.getTrack(); 
-
-    console.log(track); 
 
     //update the editor state
     updateState(); 
@@ -71,11 +71,11 @@ async function displayTrack() {
     //set the composer
     composerInput.value = track.attributes.composerName;
 
-    //set the composer
-    albumInput.value = track.attributes.albumName; 
-
     //get the duration, divide by 1000, send to the formatter. 
     durationDiv.textContent = formatTime((track.attributes.durationInMillis/1000)); 
+
+    document.getElementById("addSection")?.addEventListener("click", createSection); 
+ 
 }
 
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
@@ -93,15 +93,92 @@ export function updateButton() {
   }
 }
 
-//update the state, enabling the title boxers and the like to be edited. 
+//update the state, enabling the title boxess and the like to be edited. 
 function updateState() {
 
   let ready = false; 
 
   //if the music service instance exists, and there is a track update the state to true. otherwise, leave the inputs disabled. 
-  if ( musicService.getInstance() != null && musicService.getTrack() !== null) ready = true; 
+  if ( musicService.getInstance() !== null && musicService.getInstance() !== undefined && musicService.getQueue() !== null &&musicService.getTrack() !== null) ready = true; 
 
   titleInput.disabled = !ready;
   composerInput.disabled = !ready
-  albumInput.disabled = !ready;
+
+
+  if (ready) {
+    addSection.classList.remove("disabledDiv");
+    removeSection.classList.remove("disabledDiv"); 
+    addCue.classList.remove("disabledDiv");
+    removeCue.classList.remove("disabledDiv"); 
+  }
+}
+
+function createSection(): void {
+  //get the current playback time. 
+  const currentTime: number = musicService.getCurrentTime(); 
+
+  //get the duration
+  const duration: number = musicService.getDuration(); 
+
+  //calc the percentage of the container
+  const percent: number = currentTime / duration ; 
+  
+  //get the parent div
+  const sectionParent: HTMLDivElement = document.getElementById("sections") as HTMLDivElement; 
+
+  //get the parent containers bounding rect.
+  const parentRect: DOMRect = sectionParent.getBoundingClientRect(); 
+
+  //get the width of the parent container in pixels. 
+  const pixelWidth: number = parentRect.width; 
+  
+  //calculate the width in vw
+  const vw: number = pixelWidth / window.innerWidth; 
+
+  //calculate the width of the section. have to multiply by 100 to get whole numbers. 
+  const sectionWidth: number = percent * vw * 100; 
+
+  //container to hold the section
+  let sectionContainer: HTMLDivElement = document.createElement("div"); 
+
+  //append to the parent
+  sectionParent.append(sectionContainer); 
+
+  //set the containers width
+  sectionContainer.style.width = `${sectionWidth}vw`
+
+  sectionContainer.classList.add("section")
+  
+  //section to add the measure number. 
+  let measureSection: HTMLDivElement = document.createElement("div");
+
+  //append it
+  sectionContainer.append(measureSection); 
+
+  //make it editable
+  measureSection.contentEditable = "true"; 
+
+  //set its text
+  measureSection.textContent = "m. #";
+
+  //set class on the measure
+  measureSection.classList.add("measure"); 
+
+  //create container to hold section
+  let sectionTitle: HTMLDivElement = document.createElement("div"); 
+  
+  //append it
+  sectionContainer.append(sectionTitle); 
+
+  //make ite ditable
+  sectionTitle.contentEditable = "true"; 
+
+  //set its text
+  sectionTitle.textContent = "Section Title";
+
+  //add the class to the section title
+  sectionTitle.classList.add("sectionTitle")
+
+
+
 }

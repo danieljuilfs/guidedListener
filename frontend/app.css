@@ -24,6 +24,11 @@ html, body {
     grid-template-rows: 90fr 10fr; 
 }
 
+#bottomButtons > div:hover {
+    opacity: .8;
+    border: 1px solid black; 
+}
+
 #controls {
     display: grid;
     grid-template-columns: max-content auto; 

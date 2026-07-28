@@ -14,9 +14,9 @@ musicService.ts:
 slider.ts:
     handles the movement of the audio playback progress slider.
 
-test.ts:
-    the controller. willg et a rename eventually.
-
+app.ts:
+    controller for the app. 
+    
 trackinfo.ts:
     handles all of the rendering of information about the track to the main page.
 
