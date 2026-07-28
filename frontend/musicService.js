@@ -26,8 +26,12 @@ export function initMusicKit(developerToken, updateButton, updateTrack, type) {
                 isReady = true;
                 //listener that updates the state of the playbutton whenever music kit updates its state. 
                 music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton);
+                //listener that resets the state of the track when it ends. 
                 music.addEventListener(MusicKit.Events.playbackStateDidChange, () => {
-                    console.log(MusicKit.playbackState);
+                    if (music.playbackState === 10) {
+                        started = false;
+                        elapsedTime = 0;
+                    }
                 });
                 //listener that updates the state of the track.
                 if (type === "load") {
@@ -87,9 +91,11 @@ export function getCurrentTime() {
         return 0;
     if (!playing)
         return elapsedTime;
+    //when the song is completed, return the final duration. 
     if (music.playbackState === 10)
         return getDuration();
     else {
+        //in all other cases, calculate the elapsed time and return it. 
         return ((elapsedTime * 1000) + (performance.now() - startTime)) / 1000;
     }
 }
@@ -123,7 +129,6 @@ export async function getTrack() {
     return music.queue.items[0];
 }
 function syncTime() {
-    console.log("performance.now(): " + performance.now() + " start:" + startTime);
     if (music.playbackState === 1) {
         startTime = performance.now();
         started = true;

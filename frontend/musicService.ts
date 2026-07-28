@@ -35,8 +35,12 @@ export function initMusicKit(developerToken: string, updateButton:() => void, up
         //listener that updates the state of the playbutton whenever music kit updates its state. 
         music.addEventListener(MusicKit.Events.playbackStateDidChange, updateButton); 
 
+        //listener that resets the state of the track when it ends. 
         music.addEventListener(MusicKit.Events.playbackStateDidChange, () => {
-          console.log(MusicKit.playbackState); 
+          if (music.playbackState === 10) {
+            started = false; 
+            elapsedTime = 0; 
+          }
         }); 
         
         //listener that updates the state of the track.
@@ -88,7 +92,7 @@ export async function togglePlay(): Promise<void> {
   if (state === MusicKit.PlaybackStates.loading || state === MusicKit.PlaybackStates.buffering) {
     return;
   }
-  
+
   if (music.isPlaying) {
     music.pause();
     playing = false; 
@@ -109,10 +113,13 @@ export function checkReady(): boolean {
 export function getCurrentTime(): number { 
     if (!music) return 0; 
     if (!playing) return elapsedTime; 
+
+    //when the song is completed, return the final duration. 
     if (music.playbackState === 10) return getDuration();
     
 
     else {
+      //in all other cases, calculate the elapsed time and return it. 
       return ((elapsedTime * 1000 )+ (performance.now() - startTime)) / 1000; 
     }
 }
@@ -154,7 +161,6 @@ export async function getTrack(): Promise<MusicKit.MediaItem>{
 }
 
 function syncTime() {
-  console.log("performance.now(): " + performance.now() + " start:" + startTime); 
 
   if (music.playbackState === 1) {
     startTime = performance.now();

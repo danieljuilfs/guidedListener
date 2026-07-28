@@ -117,6 +117,7 @@ function createSection(): void {
   //get the current playback time. 
   const currentTime: number = musicService.getCurrentTime(); 
 
+
   //get the duration
   const duration: number = musicService.getDuration(); 
 

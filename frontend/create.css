@@ -156,11 +156,11 @@ body {
 }
 
 .section {
-    border-radius: 1vw;  
-    padding-left: 1vw; 
+    border-radius: 1vw;   
     display: grid;
     background: #c0d5f6;  
     grid-template-rows: 1fr 8fr 1fr; 
+    box-sizing: border-box; 
 }
 
 .sectionTitle {
@@ -171,6 +171,9 @@ body {
 
 .measure {
     font-size: 1rem; 
+    margin-left: 1vw;
+    box-sizing: border-box; 
+    width: max-content; 
 }
 
 #sections {
