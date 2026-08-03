@@ -1,6 +1,6 @@
 //imports
 import * as musicService from "./musicService.js";
-import { createAnnotations} from "./annotations.js"; 
+import { createAnnotations } from "./annotations.js"; 
 import { updateTrack } from "./trackInfo.js"
 import type { GuidedListener } from "./annotations.js"
 import "./hoverTimer.js"; 

@@ -112,7 +112,7 @@ export function checkReady(): boolean {
 
 export function getCurrentTime(): number { 
     if (!music) return 0; 
-    if (!playing) return elapsedTime; 
+    if (!playing) return Math.max(0,elapsedTime); 
 
     //when the song is completed, return the final duration. 
     if (music.playbackState === 10) return getDuration();

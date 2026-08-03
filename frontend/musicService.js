@@ -90,7 +90,7 @@ export function getCurrentTime() {
     if (!music)
         return 0;
     if (!playing)
-        return elapsedTime;
+        return Math.max(0, elapsedTime);
     //when the song is completed, return the final duration. 
     if (music.playbackState === 10)
         return getDuration();

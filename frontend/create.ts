@@ -3,6 +3,18 @@ import { formatTime } from "./utils.js";
 import "./hoverTimer.js"; 
 import "./trackInfo.js"; 
 
+interface section {
+  sectionNumber: number,
+  measure: string,  
+  sectionName: string;
+  startTime: number; 
+  lyrics?: string; 
+  translation?:  string; 
+  notes?: string; 
+}
+
+//definitions
+
 let songId: string; 
 
 const titleInput: HTMLInputElement = document.getElementById("trackInput") as HTMLInputElement; 
@@ -17,6 +29,17 @@ const addCue: HTMLDivElement = document.getElementById("addCue") as HTMLDivEleme
 
 const removeCue: HTMLDivElement = document.getElementById("removeCue") as HTMLDivElement; 
 
+let trackItem: MusicKit.MediaItem ; 
+
+//hold the divs
+const divMap: Map<number, HTMLDivElement> = new Map(); 
+
+//hold the section objects
+const sections: section[] = [];
+
+//keep track of the section ids
+let id: number = 0; 
+
 //change set the editor state on page load
 updateState(); 
 
@@ -26,6 +49,7 @@ const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJp
 document.getElementById("loadTrack")!.addEventListener("click", async () => {
     //get the track element
     const input: HTMLInputElement = document.getElementById("trackLink") as HTMLInputElement; 
+
     //get the url so you can split it. 
     const url: string = input.value; 
 
@@ -51,6 +75,7 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
 
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay); 
 
+
 });
 
 async function displayTrack() {
@@ -60,22 +85,27 @@ async function displayTrack() {
     const durationDiv: HTMLDivElement = document.getElementById("duration") as HTMLDivElement; 
 
     //get the track
-    const track: MusicKit.MediaItem = await musicService.getTrack(); 
+    trackItem = await musicService.getTrack(); 
 
     //update the editor state
     updateState(); 
 
     //set the name
-    titleInput.value = track.attributes.name;    
+    titleInput.value = trackItem.attributes.name;    
 
     //set the composer
-    composerInput.value = track.attributes.composerName;
+    composerInput.value = trackItem.attributes.composerName;
 
     //get the duration, divide by 1000, send to the formatter. 
-    durationDiv.textContent = formatTime((track.attributes.durationInMillis/1000)); 
+    durationDiv.textContent = formatTime((trackItem.attributes.durationInMillis/1000)); 
 
     document.getElementById("addSection")?.addEventListener("click", createSection); 
+
+
+    //create the first section. 
  
+    createSection(); 
+    console.log(sections); 
 }
 
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
@@ -115,35 +145,50 @@ function updateState() {
 
 function createSection(): void {
   //get the current playback time. 
-  const currentTime: number = musicService.getCurrentTime(); 
+  let currentTime: number = musicService.getCurrentTime(); 
 
+  let sectionIndex: number = 0; 
 
-  //get the duration
-  const duration: number = musicService.getDuration(); 
+  //find index determines the index of the item it is looking for. the arrow function determines if the individual section is what you are looking for. 
+  if (sections.length > 0) { sectionIndex = sections.findIndex((section, index) => {
 
-  //calc the percentage of the container
-  const percent: number = currentTime / duration ; 
+    //get the next section in the array 
+    const nextSection = sections[index + 1];
+
+    return (
+      /*return whether the current time is greater than the startTime of the current section, and theres either not a next section, or the next sections startTime is less than the current time, 
+      return true. If it is, we have found the index of the section. */
+        currentTime >= section.startTime &&
+        (!nextSection || currentTime < nextSection.startTime)
+    );
+  });
+ }
+ else {
+  //handling the fact that currentTime will be NaN at the start. 
+  currentTime = 0; 
+ }
+
+  //create the object, store the data.
+
+  const newSection: section = {
+    sectionNumber: id++, 
+    measure: "m. #", 
+    sectionName: "Title Section",
+    startTime: currentTime, 
+    lyrics: "", 
+    translation:  "", 
+    notes: "",
+}
   
-  //get the parent div
-  const sectionParent: HTMLDivElement = document.getElementById("sections") as HTMLDivElement; 
+  //splice at the determined index, inserting the new section. 
+  sections.splice(sectionIndex+1, 0, newSection); 
 
-  //get the parent containers bounding rect.
-  const parentRect: DOMRect = sectionParent.getBoundingClientRect(); 
 
-  //get the width of the parent container in pixels. 
-  const pixelWidth: number = parentRect.width; 
-  
-  //calculate the width in vw
-  const vw: number = pixelWidth / window.innerWidth; 
-
-  //calculate the width of the section. have to multiply by 100 to get whole numbers. 
-  const sectionWidth: number = percent * vw * 100; 
+  //get the width of the div 
+  const sectionWidth = calcWidth(sectionIndex+1)
 
   //container to hold the section
   let sectionContainer: HTMLDivElement = document.createElement("div"); 
-
-  //append to the parent
-  sectionParent.append(sectionContainer); 
 
   //set the containers width
   sectionContainer.style.width = `${sectionWidth}vw`
@@ -160,7 +205,7 @@ function createSection(): void {
   measureSection.contentEditable = "true"; 
 
   //set its text
-  measureSection.textContent = "m. #";
+  measureSection.textContent = newSection.measure;
 
   //set class on the measure
   measureSection.classList.add("measure"); 
@@ -175,10 +220,68 @@ function createSection(): void {
   sectionTitle.contentEditable = "true"; 
 
   //set its text
-  sectionTitle.textContent = "Section Title";
+  sectionTitle.textContent = newSection.sectionName;
 
   //add the class to the section title
   sectionTitle.classList.add("sectionTitle")
+
+  divMap.set(id, sectionContainer); 
+
+} 
+
+function getEndTime(index: number): number {
+
+  //get the next section from the array of sections
+  const nextSection = sections[index + 1]; 
+
+  console.log("next section: " + nextSection); 
+
+  //if that section exists, its start time is our current divs end time.
+  if (nextSection) {
+    return nextSection.startTime; 
+  }
+
+  console.log("duration: " + musicService.getDuration())
+
+  //if not, the end time is the end of the track. 
+  return trackItem.attributes.durationInMillis/1000; 
+}
+
+function calcWidth(index: number): number  {
+  //get the current playback time
+  const currentTime: number = musicService.getCurrentTime(); 
+
+  //get the start time of the next section
+  const endTime = getEndTime(index)
+
+  //calc the length
+  const length = endTime - currentTime; 
+
+  console.log("length is " + length + " currentTime is: " + currentTime + " endTime is: " + endTime); 
+
+  //get the duration
+  const duration: number = trackItem.attributes.durationInMillis/1000;
+
+  //calc the percentage of the container
+  const percent: number = length / duration ; 
+    
+  //get the parent container
+  const sectionParent: HTMLDivElement = document.getElementById("sections") as HTMLDivElement; 
+
+  //get the parent containers bounding rect.
+  const parentRect: DOMRect = sectionParent.getBoundingClientRect(); 
+
+  const pixelWidth: number = parentRect.width; 
+
+  //calculate the width in vw
+  const vw: number = pixelWidth / window.innerWidth; 
+  
+  //calculate the width of the section. have to multiply by 100 to get whole numbers. 
+  const sectionWidth: number = percent * vw * 100; 
+
+  //return the section width
+  return sectionWidth; 
+  
 
 
 
