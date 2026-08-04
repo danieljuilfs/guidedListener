@@ -14,7 +14,7 @@ let trackItem;
 //hold the divs
 const divMap = new Map();
 //hold the section objects
-const sections = [];
+const sectionsArr = [];
 //keep track of the section ids
 let id = 0;
 //change set the editor state on page load
@@ -35,13 +35,14 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
         //split the track at the identifier, grab it, and set song id. 
         const track = url.split("?i=")[1];
         songId = track;
-        console.log(songId);
     }
     //initialize music kit once they authorize.
     await musicService.initMusicKit(jwt, updateButton, displayTrack, "create");
     //if the user isn't authorized, auth
     if (!musicService.isAuthorized())
         await musicService.authorize();
+    //reset on track load. 
+    resetSections();
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay);
 });
 async function displayTrack() {
@@ -61,7 +62,6 @@ async function displayTrack() {
     document.getElementById("addSection")?.addEventListener("click", createSection);
     //create the first section. 
     createSection();
-    console.log(sections);
 }
 //update the play/pause button based on current playback status. checked every time the button is pressed. 
 export function updateButton() {
@@ -97,10 +97,10 @@ function createSection() {
     let currentTime = musicService.getCurrentTime();
     let sectionIndex = 0;
     //find index determines the index of the item it is looking for. the arrow function determines if the individual section is what you are looking for. 
-    if (sections.length > 0) {
-        sectionIndex = sections.findIndex((section, index) => {
+    if (sectionsArr.length > 0) {
+        sectionIndex = sectionsArr.findIndex((section, index) => {
             //get the next section in the array 
-            const nextSection = sections[index + 1];
+            const nextSection = sectionsArr[index + 1];
             return (
             /*return whether the current time is greater than the startTime of the current section, and theres either not a next section, or the next sections startTime is less than the current time,
             return true. If it is, we have found the index of the section. */
@@ -112,9 +112,9 @@ function createSection() {
         //handling the fact that currentTime will be NaN at the start. 
         currentTime = 0;
     }
-    //create the object, store the data.
+    //define the object. 
     const newSection = {
-        sectionNumber: id++,
+        sectionNumber: id,
         measure: "m. #",
         sectionName: "Title Section",
         startTime: currentTime,
@@ -123,83 +123,68 @@ function createSection() {
         notes: "",
     };
     //splice at the determined index, inserting the new section. 
-    sections.splice(sectionIndex + 1, 0, newSection);
-    //get the width of the div 
-    const divWidth = calcWidth(sectionIndex + 1);
-    /*
-    
-      
-    
-    
-    
-      console.log("width: " + sectionWidth + " percent: " + percent + ' vw: ' + vw);
-    
-      //container to hold the section
-      let sectionContainer: HTMLDivElement = document.createElement("div");
-    
-      //append to the parent
-      sectionParent.append(sectionContainer);
-    
-      //set the containers width
-      sectionContainer.style.width = `${sectionWidth}vw`
-    
-      sectionContainer.classList.add("section")
-      
-      //section to add the measure number.
-      let measureSection: HTMLDivElement = document.createElement("div");
-    
-      //append it
-      sectionContainer.append(measureSection);
-    
-      //make it editable
-      measureSection.contentEditable = "true";
-    
-      //set its text
-      measureSection.textContent = "m. #";
-    
-      //set class on the measure
-      measureSection.classList.add("measure");
-    
-      //create container to hold section
-      let sectionTitle: HTMLDivElement = document.createElement("div");
-      
-      //append it
-      sectionContainer.append(sectionTitle);
-    
-      //make ite ditable
-      sectionTitle.contentEditable = "true";
-    
-      //set its text
-      sectionTitle.textContent = "Section Title";
-    
-      //add the class to the section title
-      sectionTitle.classList.add("sectionTitle")
-    */
+    sectionsArr.splice(sectionIndex + 1, 0, newSection);
+    //container to hold the section
+    let sectionContainer = document.createElement("div");
+    //add the section class to it. 
+    sectionContainer.classList.add("section");
+    //section to add the measure number. 
+    let measureSection = document.createElement("div");
+    //append it
+    sectionContainer.append(measureSection);
+    //make it editable
+    measureSection.contentEditable = "true";
+    //set its text
+    measureSection.textContent = newSection.measure;
+    //set class on the measure
+    measureSection.classList.add("measure");
+    //create container to hold section
+    let sectionTitle = document.createElement("div");
+    //append it
+    sectionContainer.append(sectionTitle);
+    //make ite ditable
+    sectionTitle.contentEditable = "true";
+    //set its text
+    sectionTitle.textContent = String(newSection.sectionNumber);
+    //add the class to the section title
+    sectionTitle.classList.add("sectionTitle");
+    divMap.set(id, sectionContainer);
+    //increment id now that we are done working with it
+    id++;
+    console.log("Begin drawing divs");
+    //render the divs
+    drawDivs();
 }
 function getEndTime(index) {
     //get the next section from the array of sections
-    const nextSection = sections[index + 1];
-    console.log("next section: " + nextSection);
+    const nextSection = sectionsArr[index + 1];
+    let time = 0;
     //if that section exists, its start time is our current divs end time.
     if (nextSection) {
-        return nextSection.startTime;
+        time = nextSection.startTime;
     }
-    console.log("duration: " + musicService.getDuration());
+    else
+        time = trackItem.attributes.durationInMillis / 1000;
     //if not, the end time is the end of the track. 
-    return trackItem.attributes.durationInMillis / 1000;
+    return time;
 }
 function calcWidth(index) {
     //get the current playback time
-    const currentTime = musicService.getCurrentTime();
+    let startTime = sectionsArr[index]?.startTime;
+    const sectionId = sectionsArr[index]?.sectionNumber;
+    if (!startTime) {
+        startTime = 0;
+    }
     //get the start time of the next section
     const endTime = getEndTime(index);
-    //calc the length
-    const length = endTime - currentTime;
-    console.log("length is " + length + " currentTime is: " + currentTime + " endTime is: " + endTime);
+    //calc the length. this calc is wrong. 
+    const length = endTime - startTime;
+    console.log("index: " + index + "section id: " + sectionId + " Start time: " + startTime + " endTime: " + endTime + " length: " + length);
     //get the duration
-    const duration = musicService.getDuration();
+    const duration = trackItem.attributes.durationInMillis / 1000;
     //calc the percentage of the container
-    const percent = currentTime / duration;
+    const percent = length / duration;
+    //console.log("length: " + length + " duration: " + duration + " percent: " + percent); 
     //get the parent container
     const sectionParent = document.getElementById("sections");
     //get the parent containers bounding rect.
@@ -209,5 +194,35 @@ function calcWidth(index) {
     const vw = pixelWidth / window.innerWidth;
     //calculate the width of the section. have to multiply by 100 to get whole numbers. 
     const sectionWidth = percent * vw * 100;
+    //console.log("sectionWidth: " + sectionWidth + " percent: " + percent + " vw: " + vw);
+    //return the section width
+    return sectionWidth;
+}
+function drawDivs() {
+    console.log("inside drawDivs");
+    //get the parent container
+    const sectionParent = document.getElementById("sections");
+    //empty the container. 
+    sectionParent.replaceChildren();
+    //iterate over the sections, grab the divs in order, and add them to the dom by id
+    sectionsArr.forEach((sec, index) => {
+        //the sections div should be in order, because everything is just sliced in via insertion. 
+        const toAdd = divMap.get(sec.sectionNumber);
+        const divWidth = calcWidth(index);
+        console.log(`index=${index}, section=${sec.sectionNumber}, width=${divWidth}`);
+        if (toAdd) {
+            toAdd.style.width = `${divWidth}vw`;
+            sectionParent.append(toAdd);
+        }
+    });
+}
+function resetSections() {
+    //empty the divs
+    const sectionParent = document.getElementById("sections");
+    sectionParent.replaceChildren();
+    id = 0;
+    //reset the array and map
+    sectionsArr.length = 0;
+    divMap.clear();
 }
 //# sourceMappingURL=create.js.map
