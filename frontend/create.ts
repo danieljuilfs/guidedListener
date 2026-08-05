@@ -29,7 +29,9 @@ const addCue: HTMLDivElement = document.getElementById("addCue") as HTMLDivEleme
 
 const removeCue: HTMLDivElement = document.getElementById("removeCue") as HTMLDivElement; 
 
-let trackItem: MusicKit.MediaItem ; 
+let selectedDiv: HTMLDivElement | null = null;
+
+let trackItem: MusicKit.MediaItem; 
 
 //hold the divs
 const divMap: Map<number, HTMLDivElement> = new Map(); 
@@ -77,7 +79,7 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
     resetSections(); 
 
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay); 
-
+    document.getElementById("removeSection")?.addEventListener("click", deleteDiv); 
 
 });
 
@@ -106,7 +108,6 @@ async function displayTrack() {
 
 
     //create the first section. 
- 
     createSection(); 
 }
 
@@ -149,6 +150,11 @@ function createSection(): void {
   //get the current playback time. 
   let currentTime: number = musicService.getCurrentTime(); 
 
+  if (currentTime === 0 && sectionsArr.length > 0) {
+    alert("Track must be playing!"); 
+    return; 
+  }
+
   let sectionIndex: number = 0; 
 
   //find index determines the index of the item it is looking for. the arrow function determines if the individual section is what you are looking for. 
@@ -171,22 +177,38 @@ function createSection(): void {
  }
 
 
-//define the object. 
-const newSection: section = {
-  sectionNumber: id, 
-  measure: "m. #", 
-  sectionName: "Title Section",
-  startTime: currentTime, 
-  lyrics: "", 
-  translation:  "", 
-  notes: "",
-}
+  //define the object. 
+  const newSection: section = {
+    sectionNumber: id, 
+    measure: "m. #", 
+    sectionName: "Title Section",
+    startTime: currentTime, 
+    lyrics: "", 
+    translation:  "", 
+    notes: "",
+  }
 
   //splice at the determined index, inserting the new section. 
   sectionsArr.splice(sectionIndex+1, 0, newSection); 
 
   //container to hold the section
   let sectionContainer: HTMLDivElement = document.createElement("div"); 
+
+      //allows the div to be selected. used so we can target the div and remove it. 
+  sectionContainer.addEventListener("click", () => {
+
+      // Remove selection from the previous div
+      if (selectedDiv) {
+          selectedDiv.classList.remove("selected");
+      }
+
+      // Select this div
+      selectedDiv = sectionContainer;
+      selectedDiv.classList.add("selected");
+  });
+
+  //store the id of the div in the div so we can reference it for deletion. 
+  sectionContainer.dataset.sectionId = newSection.sectionNumber.toString(); 
 
   //add the section class to it. 
   sectionContainer.classList.add("section")
@@ -212,7 +234,7 @@ const newSection: section = {
   //append it
   sectionContainer.append(sectionTitle); 
 
-  //make ite ditable
+  //make it editable
   sectionTitle.contentEditable = "true"; 
 
   //set its text
@@ -242,8 +264,6 @@ function getEndTime(index: number): number {
     time = nextSection.startTime; 
   }
   else time = trackItem.attributes.durationInMillis/1000;
-
-
 
   //if not, the end time is the end of the track. 
   return time; 
@@ -328,4 +348,41 @@ function resetSections() {
   //reset the array and map
     sectionsArr.length = 0;
     divMap.clear(); 
+}
+
+function deleteDiv() {
+  const div: HTMLDivElement | null = selectedDiv; 
+  console.log(div); 
+
+  if (!div) {
+    console.log("Inside If"); 
+    alert("Must select a section to delete");
+    return
+  }
+
+  if (sectionsArr.length === 1) {
+    alert("There must be at least one section");
+    return
+  }
+
+  const id: number | undefined = Number(div.dataset.sectionId); 
+
+  if (!id) {
+    alert("Must have a section selection!"); 
+    return 
+  }
+
+  //delete the section from the map. 
+  divMap.delete(id)
+
+  //iterate over the array, find the section with the section number which is equal to the id. 
+  const index = sectionsArr.findIndex(
+    section => section.sectionNumber === id
+  );
+
+  if (index !== -1) {
+    sectionsArr.splice(index, 1); 
+  }
+
+  drawDivs(); 
 }

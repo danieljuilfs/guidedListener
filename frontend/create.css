@@ -50,6 +50,11 @@ body {
     font-size: 1.5rem; 
 }
 
+.selected {
+    outline: 3px solid royalblue;
+    background-color: #d9e8ff;
+}
+
 #addTrack {
     display: grid;
     justify-items: center;
@@ -175,8 +180,6 @@ body {
     border-color: #cfb234; 
     border-width: .1vh; 
 }
-
-
 
 
 #sections {
