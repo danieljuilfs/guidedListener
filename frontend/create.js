@@ -11,6 +11,7 @@ const removeSection = document.getElementById("removeSection");
 const addCue = document.getElementById("addCue");
 const removeCue = document.getElementById("removeCue");
 let selectedDiv = null;
+let selectedSection = undefined;
 let trackItem;
 //hold the divs
 const divMap = new Map();
@@ -46,6 +47,16 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
     resetSections();
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay);
     document.getElementById("removeSection")?.addEventListener("click", deleteDiv);
+    document.getElementById("notes")?.addEventListener("input", () => {
+        //if there is no selected section, return
+        if (!selectedSection)
+            return;
+        //if it does exist get the notes are equal to the text content if it exists, otherwise its empty. 
+        const secNotes = document.getElementById("notes")?.textContent;
+        const notes = secNotes ? secNotes : "Add Comment";
+        selectedSection.notes = notes;
+        console.log(selectedSection.notes);
+    });
 });
 async function displayTrack() {
     //queue the track. 
@@ -126,22 +137,14 @@ function createSection() {
         startTime: currentTime,
         lyrics: "",
         translation: "",
-        notes: "",
+        notes: "Add Text Comment",
     };
     //splice at the determined index, inserting the new section. 
     sectionsArr.splice(sectionIndex + 1, 0, newSection);
     //container to hold the section
     let sectionContainer = document.createElement("div");
     //allows the div to be selected. used so we can target the div and remove it. 
-    sectionContainer.addEventListener("click", () => {
-        // Remove selection from the previous div
-        if (selectedDiv) {
-            selectedDiv.classList.remove("selected");
-        }
-        // Select this div
-        selectedDiv = sectionContainer;
-        selectedDiv.classList.add("selected");
-    });
+    sectionContainer.addEventListener("click", () => onFocus(sectionContainer));
     //store the id of the div in the div so we can reference it for deletion. 
     sectionContainer.dataset.sectionId = newSection.sectionNumber.toString();
     //add the section class to it. 
@@ -156,7 +159,11 @@ function createSection() {
     measureSection.textContent = newSection.measure;
     //set class on the measure
     measureSection.classList.add("measure");
-    //create container to hold section
+    //add the listener to update the object when the text changes. 
+    measureSection.addEventListener("input", () => {
+        newSection.measure = measureSection.textContent ?? "";
+    });
+    //create container to hold section title
     let sectionTitle = document.createElement("div");
     //append it
     sectionContainer.append(sectionTitle);
@@ -166,11 +173,15 @@ function createSection() {
     sectionTitle.textContent = String(newSection.sectionNumber);
     //add the class to the section title
     sectionTitle.classList.add("sectionTitle");
+    sectionTitle.addEventListener("input", () => {
+        newSection.sectionName = sectionTitle.textContent ?? "";
+    });
     divMap.set(id, sectionContainer);
     //increment id now that we are done working with it
     id++;
     //render the divs
     drawDivs();
+    onFocus(sectionContainer);
 }
 function getEndTime(index) {
     //get the next section from the array of sections
@@ -188,7 +199,6 @@ function getEndTime(index) {
 function calcWidth(index) {
     //get the current playback time
     let startTime = sectionsArr[index]?.startTime;
-    const sectionId = sectionsArr[index]?.sectionNumber;
     if (!startTime) {
         startTime = 0;
     }
@@ -209,12 +219,10 @@ function calcWidth(index) {
     const vw = pixelWidth / window.innerWidth;
     //calculate the width of the section. have to multiply by 100 to get whole numbers. 
     const sectionWidth = percent * vw * 100;
-    //console.log("sectionWidth: " + sectionWidth + " percent: " + percent + " vw: " + vw);
     //return the section width
     return sectionWidth;
 }
 function drawDivs() {
-    console.log("inside drawDivs");
     //get the parent container
     const sectionParent = document.getElementById("sections");
     //empty the container. 
@@ -243,9 +251,7 @@ function resetSections() {
 }
 function deleteDiv() {
     const div = selectedDiv;
-    console.log(div);
     if (!div) {
-        console.log("Inside If");
         alert("Must select a section to delete");
         return;
     }
@@ -254,7 +260,9 @@ function deleteDiv() {
         return;
     }
     const id = Number(div.dataset.sectionId);
-    if (!id) {
+    console.log(id);
+    //can use loose equality because checking for both null and undefined is fine!
+    if (id == null) {
         alert("Must have a section selection!");
         return;
     }
@@ -262,9 +270,54 @@ function deleteDiv() {
     divMap.delete(id);
     //iterate over the array, find the section with the section number which is equal to the id. 
     const index = sectionsArr.findIndex(section => section.sectionNumber === id);
+    //have to handle deletion of the first section, by updating the start time of the second section. 
+    if (index === 0) {
+        if (sectionsArr[1])
+            sectionsArr[1].startTime = 0;
+    }
     if (index !== -1) {
         sectionsArr.splice(index, 1);
     }
     drawDivs();
+    onFocus(divMap.values().next().value);
 }
+function onFocus(div) {
+    if (!div) {
+        console.log("No div selected");
+        return;
+    }
+    // Remove selection from the previous div
+    if (selectedDiv) {
+        selectedDiv.classList.remove("selected");
+    }
+    // Select this div
+    selectedDiv = div;
+    selectedDiv.classList.add("selected");
+    //set the selected section
+    //iterate over the array, find the section with the section number which is equal to the id. 
+    const section = sectionsArr.find(section => section.sectionNumber === Number(selectedDiv?.dataset.sectionId));
+    if (section) {
+        selectedSection = section;
+        loadComments(selectedDiv);
+    }
+}
+function loadComments(div) {
+    console.log("inside loadComments");
+    if (!div) {
+        console.log("No div selected");
+        return;
+    }
+    //get the section id out of the div passed in. 
+    const sectionId = Number(div.dataset.sectionId);
+    console.log(sectionsArr);
+    console.log("sectionID: " + sectionId);
+    //get the section from the arr to use to get its comment. 
+    if (selectedSection) {
+        const notes = document.getElementById("notes");
+        console.log("textContent: " + notes.textContent);
+        if (notes)
+            notes.textContent = selectedSection.notes ? selectedSection.notes : "Add Comment";
+    }
+}
+;
 //# sourceMappingURL=create.js.map
