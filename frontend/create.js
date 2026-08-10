@@ -19,6 +19,8 @@ const divMap = new Map();
 const sectionsArr = [];
 //keep track of the section ids
 let id = 0;
+let cueId = 0;
+const cueArr = [];
 //change set the editor state on page load
 updateState();
 //the JWT for accessing the authentication 
@@ -47,6 +49,7 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
     resetSections();
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay);
     document.getElementById("removeSection")?.addEventListener("click", deleteDiv);
+    document.getElementById("addCue")?.addEventListener("click", createCue);
     document.getElementById("notes")?.addEventListener("input", () => {
         //if there is no selected section, return
         if (!selectedSection)
@@ -113,21 +116,17 @@ function createSection() {
         return;
     }
     let sectionIndex = 0;
-    //find index determines the index of the item it is looking for. the arrow function determines if the individual section is what you are looking for. 
-    if (sectionsArr.length > 0) {
-        sectionIndex = sectionsArr.findIndex((section, index) => {
-            //get the next section in the array 
-            const nextSection = sectionsArr[index + 1];
-            return (
-            /*return whether the current time is greater than the startTime of the current section, and theres either not a next section, or the next sections startTime is less than the current time,
-            return true. If it is, we have found the index of the section. */
-            currentTime >= section.startTime &&
-                (!nextSection || currentTime < nextSection.startTime));
-        });
-    }
+    if (sectionsArr.length > 0)
+        sectionIndex = findSectionIndex(currentTime);
     else {
         //handling the fact that currentTime will be NaN at the start. 
         currentTime = 0;
+    }
+    let duplicateStart = checkDuplicates(currentTime, "sections");
+    console.log("duplicates: " + duplicateStart);
+    if (duplicateStart) {
+        alert("Cannot have two sections with the same start time!");
+        return;
     }
     //define the object. 
     const newSection = {
@@ -161,7 +160,7 @@ function createSection() {
     measureSection.classList.add("measure");
     //add the listener to update the object when the text changes. 
     measureSection.addEventListener("input", () => {
-        newSection.measure = measureSection.textContent ?? "";
+        newSection.measure = measureSection.textContent ?? "m.3";
     });
     //create container to hold section title
     let sectionTitle = document.createElement("div");
@@ -174,7 +173,7 @@ function createSection() {
     //add the class to the section title
     sectionTitle.classList.add("sectionTitle");
     sectionTitle.addEventListener("input", () => {
-        newSection.sectionName = sectionTitle.textContent ?? "";
+        newSection.sectionName = sectionTitle.textContent ?? "Add Title";
     });
     divMap.set(id, sectionContainer);
     //increment id now that we are done working with it
@@ -182,6 +181,44 @@ function createSection() {
     //render the divs
     drawDivs();
     onFocus(sectionContainer);
+}
+//creates the cue and adds it to the cue array. drawdivs is called to draw the divs which handles the section drawin g. 
+function createCue() {
+    //get the current playback time. 
+    let currentTime = musicService.getCurrentTime();
+    if (currentTime === 0 && sectionsArr.length > 0) {
+        alert("Track must be playing!");
+        return;
+    }
+    let sectionIndex = 0;
+    //figure out what section the cue is going in. 
+    if (sectionsArr.length > 0)
+        sectionIndex = findSectionIndex(currentTime);
+    else {
+        //handling the fact that currentTime will be NaN at the start. 
+        currentTime = 0;
+    }
+    //check for duplicates
+    let duplicateStart = checkDuplicates(currentTime, "cues");
+    if (duplicateStart) {
+        alert("Cannot have two cues with the same start time!");
+        return;
+    }
+    //create the cue
+    const newCue = {
+        cueNumber: cueId,
+        startTime: currentTime,
+        lyrics: "Add Lyrics",
+        translation: "Add Translation",
+        notes: "Add Notes"
+    };
+    //add the cue to the array. 
+    cueArr.push(newCue);
+    //increment the counter
+    cueId++;
+    console.log(cueArr);
+    drawDivs();
+    //do we just redraw all the cues every time the sections are drawn? my guess is yes?
 }
 function getEndTime(index) {
     //get the next section from the array of sections
@@ -204,7 +241,7 @@ function calcWidth(index) {
     }
     //get the start time of the next section
     const endTime = getEndTime(index);
-    //calc the length. this calc is wrong. 
+    //calc the length. 
     const length = endTime - startTime;
     //get the duration
     const duration = trackItem.attributes.durationInMillis / 1000;
@@ -260,7 +297,6 @@ function deleteDiv() {
         return;
     }
     const id = Number(div.dataset.sectionId);
-    console.log(id);
     //can use loose equality because checking for both null and undefined is fine!
     if (id == null) {
         alert("Must have a section selection!");
@@ -283,7 +319,7 @@ function deleteDiv() {
 }
 function onFocus(div) {
     if (!div) {
-        console.log("No div selected");
+        alert("No div selected");
         return;
     }
     // Remove selection from the previous div
@@ -302,22 +338,47 @@ function onFocus(div) {
     }
 }
 function loadComments(div) {
-    console.log("inside loadComments");
     if (!div) {
-        console.log("No div selected");
+        alert("No div selected");
         return;
     }
     //get the section id out of the div passed in. 
     const sectionId = Number(div.dataset.sectionId);
-    console.log(sectionsArr);
-    console.log("sectionID: " + sectionId);
     //get the section from the arr to use to get its comment. 
     if (selectedSection) {
         const notes = document.getElementById("notes");
-        console.log("textContent: " + notes.textContent);
         if (notes)
             notes.textContent = selectedSection.notes ? selectedSection.notes : "Add Comment";
     }
 }
 ;
+function findSectionIndex(currentTime) {
+    let sectionIndex = 0;
+    sectionIndex = sectionsArr.findIndex((section, index) => {
+        //get the next section in the array 
+        const nextSection = sectionsArr[index + 1];
+        return (
+        /*return whether the current time is greater than the startTime of the current section, and theres either not a next section, or the next sections startTime is less than the current time,
+        return true. If it is, we have found the index of the section. */
+        currentTime >= section.startTime &&
+            (!nextSection || currentTime < nextSection.startTime));
+    });
+    return sectionIndex;
+}
+function checkDuplicates(currentTime, type) {
+    let arr;
+    if (type === "cues") {
+        arr = cueArr;
+    }
+    else {
+        arr = sectionsArr;
+    }
+    console.log("time:" + currentTime);
+    for (const part of arr) {
+        console.log("startTime: " + part.startTime);
+        if (currentTime === part.startTime)
+            return true;
+    }
+    return false;
+}
 //# sourceMappingURL=create.js.map

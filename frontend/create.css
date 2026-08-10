@@ -141,12 +141,18 @@ body {
     white-space: pre-wrap;
     display: grid; 
     font-size: 2rem; 
-    margin: 0 0 0 calc(1.5vw + 36px);
-    justify-content: center; 
+    border: 1px solid black; 
 }
 
 #pbTime {
     grid-column: 1; 
+}
+
+#playback {
+    position: fixed;
+    bottom: 0; 
+    width: 100%; 
+    margin-bottom: 1vh; 
 }
 
 #playbackGrid{
