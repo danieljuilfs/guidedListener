@@ -55,6 +55,29 @@ body {
     background-color: #d9e8ff;
 }
 
+
+
+.cues {
+    position: relative; 
+}
+
+.cue {
+    position: absolute; 
+    bottom: 0; 
+    width: 44px; 
+    height: 2vh; 
+    display: grid; 
+    align-items: end;  
+    justify-items: center; 
+    margin-left: -.5vw; 
+}
+
+.marker {
+    width: .15vw;
+    height: 2vh; 
+    background: black; 
+}
+
 #addTrack {
     display: grid;
     justify-items: center;
@@ -215,6 +238,10 @@ body {
     top: 50%;
 }
 
+#trackSetup {
+    display: grid;
+    grid-template-columns: auto auto;
+}
 
 #trackLink {
     width: 25vw; 

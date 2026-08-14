@@ -71,8 +71,6 @@ export function initMusicKit(developerToken: string, updateButton:() => void, up
   });
 }
 
-
-
 export async function authorize(): Promise<void> {
   await music.authorize();
 }
@@ -100,7 +98,7 @@ export async function togglePlay(): Promise<void> {
   }
 
   else {
-    music.play();
+    await music.play();
     playing = true; 
     syncTime(); 
   }
@@ -179,9 +177,6 @@ function syncTime() {
 
   //when it starts, update the start time. 
   startTime = performance.now(); 
-  
-
-
   
 }
 

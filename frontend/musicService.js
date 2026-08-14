@@ -78,7 +78,7 @@ export async function togglePlay() {
         syncTime();
     }
     else {
-        music.play();
+        await music.play();
         playing = true;
         syncTime();
     }

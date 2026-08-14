@@ -41,7 +41,11 @@ let selectedDiv: HTMLDivElement | null = null;
 
 let selectedSection: section | undefined = undefined; 
 
+let selectedCue: cue | undefined = undefined; 
+
 let trackItem: MusicKit.MediaItem; 
+
+let listenerType: string; 
 
 //hold the divs
 const divMap: Map<number, HTMLDivElement> = new Map(); 
@@ -54,7 +58,10 @@ let id: number = 0;
 
 let cueId: number = 0; 
 
+//holds cue objects
 const cueArr: cue[] = []; 
+
+const cueMap: Map<number, HTMLDivElement> = new Map(); 
 
 //change set the editor state on page load
 updateState(); 
@@ -69,6 +76,11 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
     //get the url so you can split it. 
     const url: string = input.value; 
 
+    //set the listener type
+    listenerType = document.querySelector<HTMLInputElement>('input[name="typeSelect"]:checked')!.value; 
+
+
+    console.log(listenerType); 
     //if the url is malformed, alert the user
 
     if (!url.includes("?i=")) {
@@ -93,18 +105,26 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
     resetSections(); 
 
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay); 
-    document.getElementById("removeSection")?.addEventListener("click", deleteDiv); 
+    document.getElementById("removeSection")?.addEventListener("click", () => deleteDiv("section")); 
     document.getElementById("addCue")?.addEventListener("click", createCue); 
+    document.getElementById("removeCue")?.addEventListener("click", () =>  deleteDiv("cue"))
+
     document.getElementById("notes")?.addEventListener("input", () => {
       //if there is no selected section, return
-      if (!selectedSection) return
+      if (!selectedSection && !selectedCue) return
 
+      //container to hold the notes
+      const notesDiv: string | undefined = document.getElementById("notes")?.textContent
+
+      if (selectedSection) {
       //if it does exist get the notes are equal to the text content if it exists, otherwise its empty. 
-      const secNotes: string | undefined = document.getElementById("notes")?.textContent
-      const notes = secNotes ? secNotes : "Add Comment"; 
-      selectedSection.notes = notes; 
-
-      console.log(selectedSection.notes); 
+        const notes = notesDiv ? notesDiv : "Add Section Comment"; 
+        selectedSection.notes = notes; 
+    }
+      if (selectedCue) {
+        const notes = notesDiv ? notesDiv : "Add Cue Comment"
+        selectedCue.notes = notes; 
+      }
     });
 });
 
@@ -189,7 +209,6 @@ function createSection(): void {
   }
 
   let duplicateStart = checkDuplicates(currentTime, "sections");
-  console.log("duplicates: " + duplicateStart); 
 
  if (duplicateStart) {
   alert("Cannot have two sections with the same start time!")
@@ -202,9 +221,9 @@ function createSection(): void {
     measure: "m. #", 
     sectionName: "Title Section",
     startTime: currentTime, 
-    lyrics: "", 
-    translation:  "", 
-    notes: "Add Text Comment",
+    lyrics: "Add Lyrics", 
+    translation:  "Add Translation", 
+    notes: "Add Section Comment",
   }
 
   //splice at the determined index, inserting the new section. 
@@ -214,10 +233,10 @@ function createSection(): void {
   let sectionContainer: HTMLDivElement = document.createElement("div"); 
 
   //allows the div to be selected. used so we can target the div and remove it. 
-  sectionContainer.addEventListener("click", () => onFocus(sectionContainer)); 
+  sectionContainer.addEventListener("click", () => onFocus(sectionContainer, "section")); 
 
   //store the id of the div in the div so we can reference it for deletion. 
-  sectionContainer.dataset.sectionId = newSection.sectionNumber.toString(); 
+  sectionContainer.dataset.sectionId = String(newSection.sectionNumber); 
 
   //add the section class to it. 
   sectionContainer.classList.add("section")
@@ -239,7 +258,7 @@ function createSection(): void {
 
   //add the listener to update the object when the text changes. 
   measureSection.addEventListener("input" , () => {
-    newSection.measure = measureSection.textContent ?? "m.3"
+    newSection.measure = measureSection.textContent ?? "m.#"
   })
 
   //create container to hold section title
@@ -262,6 +281,15 @@ function createSection(): void {
  
   })
 
+  //create container to hold the cues
+  let cueDiv: HTMLDivElement = document.createElement("div"); 
+
+  //append it
+  sectionContainer.append(cueDiv); 
+
+  //add the clas to it
+  cueDiv.classList.add("cues"); 
+
   divMap.set(id, sectionContainer); 
 
   //increment id now that we are done working with it
@@ -270,7 +298,7 @@ function createSection(): void {
   //render the divs
   drawDivs(); 
 
-  onFocus(sectionContainer); 
+  onFocus(sectionContainer, "section"); 
 
 } 
 
@@ -279,8 +307,17 @@ function createCue(): void {
   //get the current playback time. 
   let currentTime: number = musicService.getCurrentTime(); 
 
+
   if (currentTime === 0 && sectionsArr.length > 0) {
     alert("Track must be playing!"); 
+    return; 
+  }
+
+  //make sure that the cue is not being created at the start of a section.
+  const badStart: section | undefined = sectionsArr.find(section => section.startTime === currentTime)
+
+  if (badStart) {
+    alert("Cannot add a cue at the starting point of a section");
     return; 
   }
 
@@ -298,7 +335,7 @@ function createCue(): void {
     startTime: currentTime, 
     lyrics: "Add Lyrics",
     translation: "Add Translation",
-    notes: "Add Notes"
+    notes: "Add cue comments"
     
   }
   
@@ -308,9 +345,13 @@ function createCue(): void {
   //increment the counter
   cueId++; 
 
-  console.log(cueArr); 
-
   drawDivs(); 
+
+  //set the new cue to the focus. 
+  if (cueMap.get(newCue.cueNumber)) {
+    onFocus(cueMap.get(newCue.cueNumber), "cue")
+  }; 
+
 }
 
 function getEndTime(index: number): number {
@@ -377,21 +418,43 @@ function drawDivs() {
   //empty the container. 
   sectionParent.replaceChildren(); 
 
-  //get each 
+  //sort the cues array to speed up access when we go to add them to the div containers. 
+  cueArr.sort((a, b) => a.startTime - b.startTime ); 
 
   //iterate over the sections, grab the divs in order, and add them to the dom by id
   
   sectionsArr.forEach((sec: section, index: number) => {
     //the sections div should be in order, because everything is just sliced in via insertion. 
-
     //needs the section number, because divs are stored in the map based on their section number. 
     const toAdd: HTMLDivElement | undefined = divMap.get(sec.sectionNumber);
-  
+
     //calc width needs the ARRAY INDEX, because it needs to calc relative sizes. 
     const divWidth = calcWidth(index);  
     if (toAdd) {
+
+        //set the stlye on the div
          toAdd.style.width = `${divWidth}vw`; 
          sectionParent.append(toAdd); 
+
+      //fetch the cue div
+      const cueDiv: HTMLDivElement | null = toAdd.querySelector(".cues"); 
+
+      //empty the cue div
+      cueDiv?.replaceChildren(); 
+
+      //get the array of cue divs
+       const cuesToAdd: HTMLDivElement[] = addCues(index); 
+
+       //iterate over each adding the listener to it. 
+       cuesToAdd.forEach((newCue) => {
+        newCue.addEventListener("click", (event) => {
+          event.stopPropagation(); 
+          onFocus(newCue, "cue")
+        }); 
+        cueDiv!.append(newCue); 
+       })
+        //append it
+        toAdd.append(cueDiv!); 
     }
   })
 }
@@ -406,9 +469,10 @@ function resetSections() {
   //reset the array and map
     sectionsArr.length = 0;
     divMap.clear(); 
+    cueMap.clear(); 
 }
 
-function deleteDiv() {
+function deleteDiv(type: string) {
   const div: HTMLDivElement | null = selectedDiv; 
 
   if (!div) {
@@ -416,50 +480,70 @@ function deleteDiv() {
     return
   }
 
-  if (sectionsArr.length === 1) {
-    alert("There must be at least one section");
-    return
+  if (type === "section") {
+    if (sectionsArr.length === 1) {
+      alert("There must be at least one section");
+      return
+    }
+    const id: number | undefined = Number(div.dataset.sectionId); 
+
+    //can use loose equality because checking for both null and undefined is fine!
+    if (id == null) {
+      alert("Must have a section selection!"); 
+      return 
+    }
+      //delete the section from the map. 
+    divMap.delete(id)
+    //iterate over the array, find the section with the section number which is equal to the id. 
+    const index = sectionsArr.findIndex(
+      section => section.sectionNumber === id
+    );
+    
+    //have to handle deletion of the first section, by updating the start time of the second section. 
+    if (index === 0 ) {
+      if (sectionsArr[1]) sectionsArr[1].startTime = 0; 
+    }
+    if (index !== -1) {
+      sectionsArr.splice(index, 1); 
+    }
+    //set the focus as the div that was just created. 
+    onFocus(divMap.values().next().value, "section")
   }
 
- 
-  const id: number | undefined = Number(div.dataset.sectionId); 
+  if (type === "cue") {
 
- 
-
-  //can use loose equality because checking for both null and undefined is fine!
-  if (id == null) {
-    alert("Must have a section selection!"); 
-    return 
-  }
-
-  //delete the section from the map. 
-  divMap.delete(id)
-
-  //iterate over the array, find the section with the section number which is equal to the id. 
-  const index = sectionsArr.findIndex(
-    section => section.sectionNumber === id
-  );
+    //get the divs id
+    const id: number | undefined = Number(div.dataset.cueNumber); 
 
 
-  //have to handle deletion of the first section, by updating the start time of the second section. 
-  if (index === 0 ) {
-    if (sectionsArr[1]) sectionsArr[1].startTime = 0; 
-  }
-  if (index !== -1) {
-    sectionsArr.splice(index, 1); 
+    //delete the cue from the map of divs
+    cueMap.delete(id); 
+
+    if (id === null) {
+      alert("Must have a cue selected!");
+      return; 
+    }
+
+    //get the index of the cue to delete. 
+    const index = cueArr.findIndex( cue => cue.cueNumber === id)
+
+    //if index esists, delete the cue. 
+    if (index !== -1) {
+      cueArr.splice(index, 1); 
+    }
   }
 
   drawDivs(); 
 
-  onFocus(divMap.values().next().value)
 }
 
-function onFocus(div: HTMLDivElement | undefined): void {
+function onFocus(div: HTMLDivElement | undefined, type: string): void {
 
     if (!div) {
     alert("No div selected")
     return; 
   }
+
   // Remove selection from the previous div
   if (selectedDiv) {
       selectedDiv.classList.remove("selected");
@@ -470,34 +554,54 @@ function onFocus(div: HTMLDivElement | undefined): void {
   selectedDiv.classList.add("selected");
 
 
-  //set the selected section
-  //iterate over the array, find the section with the section number which is equal to the id. 
-  const section = sectionsArr.find(
-    section => section.sectionNumber === Number(selectedDiv?.dataset.sectionId) 
-  );
+  if (type === "section") {
+    //iterate over the array, find the section with the section number which is equal to the id. 
+    const section = sectionsArr.find(
+      section => section.sectionNumber === Number(selectedDiv?.dataset.sectionId) 
+    );
 
-  if (section) {
-    selectedSection = section; 
-    loadComments(selectedDiv); 
+    //set the section as the selected. 
+    if (section) {
+      selectedSection = section; 
+      selectedCue = undefined; 
+      loadComments(selectedDiv, "section"); 
+    }
+  }
+
+  if (type === "cue") {
+    const cue = cueArr.find(
+      cue => cue.cueNumber === Number(selectedDiv?.dataset.cueNumber)
+    );
+    if (cue) {
+      selectedSection = undefined; 
+      selectedCue = cue; 
+      loadComments(selectedDiv, "cue")
+    }
   }
 }
 
-function loadComments(div: HTMLDivElement | undefined): void {
+function loadComments(div: HTMLDivElement | undefined, type: string): void {
 
   if (!div) {
     alert("No div selected")
     return; 
   }
-    //get the section id out of the div passed in. 
-    const sectionId: number = Number(div.dataset.sectionId);
 
+  const notes: HTMLDivElement | undefined = document.getElementById("notes") as HTMLDivElement;
+    //get the section id out of the div passed in. 
+    //const sectionId: number = Number(div.dataset.sectionId);
+
+  if (type === "section") {
     //get the section from the arr to use to get its comment. 
     if (selectedSection){
-      const notes: HTMLDivElement | undefined = document.getElementById("notes") as HTMLDivElement;
-      if (notes) notes.textContent  = selectedSection.notes ? selectedSection.notes : "Add Comment"; 
+      if (notes) notes.textContent  = selectedSection.notes ? selectedSection.notes : "Add Section Comment"; 
     }
+  }
 
-
+  if (type === "cue")
+    if (selectedCue) {
+      if (notes) notes.textContent = selectedCue.notes ? selectedCue.notes : "Add Cue Comment"
+    }
 }; 
 
 function findSectionIndex(currentTime: number): number{
@@ -529,15 +633,69 @@ function checkDuplicates(currentTime: number, type: string): boolean {
     arr = sectionsArr; 
   }
 
-  console.log("time:" + currentTime); 
   for (const part of arr) {
-    console.log("startTime: " + part.startTime); 
     if (currentTime === part.startTime) return true; 
   }
 
   return false; 
 }
 
-function addCues(index: number): void {
+function addCues(index: number): HTMLDivElement[] {
 
+  const cues: HTMLDivElement[] = []; 
+  //get the start time of the current section
+  let curTime: number;  
+
+
+
+  //if the section exists, get its current time.
+  if (sectionsArr[index]) curTime = sectionsArr[index].startTime; 
+
+  //have to increment the index here or typescript gets unhappy.
+  const nextIndex = index+1; 
+
+  //set the final duration to the end, and if there is a value in the section array, use that instead. 
+  let nextTime: number = musicService.getDuration(); 
+  if (sectionsArr[nextIndex]) nextTime = sectionsArr[nextIndex].startTime; 
+
+  //if the cues start time is greater than or equal to the current time, and less than the next time, it belongs in this sections array. 
+  cueArr.forEach((cue: cue) => {
+    if (cue.startTime >= curTime && cue.startTime < nextTime ) {
+
+      //add the div to the section. 
+      const newCue: HTMLDivElement = document.createElement("div"); 
+
+      //add the class to style it. 
+      newCue.classList.add("cue");
+
+      //put the marker inside the cue.
+      const cueMarker = document.createElement("div");
+      cueMarker.classList.add("marker"); 
+
+      //add the cuemarker to the cue div. 
+      newCue.append(cueMarker); 
+      //calculate the length of the section.
+      const trackLength: number = nextTime - curTime; 
+
+      //adjust the time to account for the length of the section rather than the whole song
+      const adjustedTime: number = cue.startTime - curTime; 
+
+      //get the position of the track
+      const position: number = (adjustedTime / trackLength) * 100;
+
+      //set the cues position
+      newCue.style.left = `${position}%`; 
+
+      //set the cuenumber into the cue
+      newCue.dataset.cueNumber = String(cue.cueNumber); 
+
+      //put the cue in the map
+      cueMap.set(cue.cueNumber, newCue); 
+
+      //add the cue to the array
+      cues.push(newCue); 
+
+    }
+  })
+      return cues; 
 } 

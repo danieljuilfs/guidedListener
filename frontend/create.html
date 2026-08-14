@@ -7,11 +7,22 @@
     </head>
 
     <body>
-        <div id="addTrack">
-            <div>
-                <label id="tracklabel">Track Link</label>
-                <input type="text" id="trackLink" placeholder="Enter Apple Music URL here"></input>
-                <button id="loadTrack">Load</button>
+        <div id="trackSetup">
+            <form>
+                <legend>Listener Type</legend>
+                <div>
+                    <input type="radio" name="typeSelect" id="vocal" value="vocal">
+                    <label for="vocal">Vocal Listener</label>
+                    <input type="radio" name="typeSelect" id="instrumental" value="instrumental">
+                    <label for="instrumental">Instrumental Listener</label>
+                </div>
+            </form>
+            <div id="addTrack">
+                <div>
+                    <label id="tracklabel">Track Link</label>
+                    <input type="text" id="trackLink" placeholder="Enter Apple Music URL here"></input>
+                    <button id="loadTrack">Create Listener</button>
+                </div>
             </div>
         </div>
         <div id="customizeTrack">
