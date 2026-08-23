@@ -78,9 +78,7 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
 
     //set the listener type
     listenerType = document.querySelector<HTMLInputElement>('input[name="typeSelect"]:checked')!.value; 
-
-
-    console.log(listenerType); 
+ 
     //if the url is malformed, alert the user
 
     if (!url.includes("?i=")) {
@@ -104,6 +102,9 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
     //reset on track load. 
     resetSections(); 
 
+    //if we have an instrumental screen, remove the translation text box. 
+    if (listenerType === "instrumental") document.getElementById("translation")!.style.display = "none"; 
+
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay); 
     document.getElementById("removeSection")?.addEventListener("click", () => deleteDiv("section")); 
     document.getElementById("addCue")?.addEventListener("click", createCue); 
@@ -118,15 +119,49 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
 
       if (selectedSection) {
       //if it does exist get the notes are equal to the text content if it exists, otherwise its empty. 
-        const notes = notesDiv ? notesDiv : "Add Section Comment"; 
+        const notes = notesDiv ? notesDiv : "Add Commentary"; 
         selectedSection.notes = notes; 
+
+        if (listenerType === "vocal ") {
+          const translationDiv = document.getElementById("translation")?.textContent
+          const translation = translationDiv ? translationDiv : "Add Translation"
+          selectedSection.translation = translation;
+        }
     }
       if (selectedCue) {
         const notes = notesDiv ? notesDiv : "Add Cue Comment"
         selectedCue.notes = notes; 
       }
     });
+
+  if (listenerType === "vocal") {
+    document.getElementById("translation")?.addEventListener("input", () => {
+      //if there is no selected section, return
+      if (!selectedSection && !selectedCue) return
+
+      //container to hold the notes
+      const translationDiv: string | undefined = document.getElementById("translation")?.textContent
+
+      if (selectedSection) {
+      //if it does exist get the translation equal to the text content if it exists, otherwise its empty. 
+        const translation = translationDiv ? translationDiv : "Add Translation"; 
+        selectedSection.translation = translation; 
+
+        if (listenerType === "vocal ") {
+          const translationDiv = document.getElementById("translation")?.textContent
+          const translation = translationDiv ? translationDiv : "Add Translation"
+          selectedSection.translation = translation;
+        }
+    }
+      if (selectedCue) {
+        const translation = translationDiv ? translationDiv : "Add translation Comment"
+        selectedCue.translation = translation; 
+      }
+    });
+  }
 });
+
+
 
 async function displayTrack() {
     //queue the track. 
@@ -223,7 +258,7 @@ function createSection(): void {
     startTime: currentTime, 
     lyrics: "Add Lyrics", 
     translation:  "Add Translation", 
-    notes: "Add Section Comment",
+    notes: "Add Section Commentary",
   }
 
   //splice at the determined index, inserting the new section. 
@@ -271,14 +306,13 @@ function createSection(): void {
   sectionTitle.contentEditable = "true"; 
 
   //set its text
-  sectionTitle.textContent = String(newSection.sectionNumber);
+  sectionTitle.textContent = String(newSection.sectionName);
 
   //add the class to the section title
   sectionTitle.classList.add("sectionTitle")
 
   sectionTitle.addEventListener("input", () => {
     newSection.sectionName = sectionTitle.textContent ?? "Add Title"; 
- 
   })
 
   //create container to hold the cues
@@ -335,7 +369,7 @@ function createCue(): void {
     startTime: currentTime, 
     lyrics: "Add Lyrics",
     translation: "Add Translation",
-    notes: "Add cue comments"
+    notes: "Add Cue Commentary"
     
   }
   
@@ -470,6 +504,9 @@ function resetSections() {
     sectionsArr.length = 0;
     divMap.clear(); 
     cueMap.clear(); 
+
+  document.getElementById("translation")!.style.display = ""; 
+
 }
 
 function deleteDiv(type: string) {
@@ -587,20 +624,27 @@ function loadComments(div: HTMLDivElement | undefined, type: string): void {
     return; 
   }
 
+  let translationDiv: HTMLDivElement | undefined = document.getElementById("translation") as HTMLDivElement; 
   const notes: HTMLDivElement | undefined = document.getElementById("notes") as HTMLDivElement;
-    //get the section id out of the div passed in. 
-    //const sectionId: number = Number(div.dataset.sectionId);
 
   if (type === "section") {
     //get the section from the arr to use to get its comment. 
     if (selectedSection){
-      if (notes) notes.textContent  = selectedSection.notes ? selectedSection.notes : "Add Section Comment"; 
+      if (notes) notes.textContent  = selectedSection.notes ? selectedSection.notes : "Add Section Commentary"; 
+      if (translationDiv && listenerType === "vocal") { 
+        translationDiv.textContent = selectedSection.translation ? selectedSection.translation : "Add Translation";
+      }
     }
   }
 
   if (type === "cue")
+
+    //if the cue exists, add the cue comment. 
     if (selectedCue) {
       if (notes) notes.textContent = selectedCue.notes ? selectedCue.notes : "Add Cue Comment"
+      if (translationDiv && listenerType === "vocal") { 
+        translationDiv.textContent = selectedCue.translation ? selectedCue.translation : "Add Translation";
+      }
     }
 }; 
 

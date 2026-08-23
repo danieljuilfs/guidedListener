@@ -40,7 +40,7 @@ body {
     border-radius: 1vw;   
     display: grid;
     background: #c0d5f6;  
-    grid-template-rows: 1fr 8fr 1fr; 
+    grid-template-rows: 1fr 6fr 3fr; 
     box-sizing: border-box; 
 }
 
@@ -55,8 +55,6 @@ body {
     background-color: #d9e8ff;
 }
 
-
-
 .cues {
     position: relative; 
 }
@@ -65,16 +63,16 @@ body {
     position: absolute; 
     bottom: 0; 
     width: 44px; 
-    height: 2vh; 
+    height: 5vh; 
     display: grid; 
     align-items: end;  
     justify-items: center; 
-    margin-left: -.5vw; 
+    margin-left: -2vw; 
 }
 
 .marker {
     width: .15vw;
-    height: 2vh; 
+    height: 5vh; 
     background: black; 
 }
 
@@ -91,7 +89,7 @@ body {
 #createSection {
     display: grid; 
     margin: 1vh 0 0 calc(1.5vw + 36px);
-    grid-template-rows: max-content max-content max-content max-content; 
+    grid-template-columns: 1fr 1fr; 
 }
 
 #createSection > div {
