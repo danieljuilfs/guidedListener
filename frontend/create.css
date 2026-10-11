@@ -29,15 +29,16 @@ body {
     font-size: 1.25rem;
 }
 
-.measure {
+.key {
     font-size: 1rem; 
-    margin-left: 1vw;
     box-sizing: border-box; 
-    width: max-content; 
+	width: "60px"; 
+	top: 50%;
+	transform: translateY(-50%);
 }
 
+
 .section {
-    border-radius: 1vw;   
     display: grid;
     background: #c0d5f6;  
     grid-template-rows: 1fr 6fr 3fr; 
@@ -52,26 +53,24 @@ body {
 
 .selected {
     outline: 3px solid royalblue;
-    background-color: #d9e8ff;
 }
 
-.cues {
+.comments {
     position: relative; 
 }
 
-.cue {
+.comment {
     position: absolute; 
     bottom: 0; 
-    width: 44px; 
+    width: 10px; 
     height: 5vh; 
     display: grid; 
     align-items: end;  
-    justify-items: center; 
-    margin-left: -2vw; 
+    justify-items: center;  
 }
 
 .marker {
-    width: .15vw;
+    width: 3px;  
     height: 5vh; 
     background: black; 
 }
@@ -136,9 +135,18 @@ body {
     padding-top: 3vh; 
 }
 
+#keyBar {
+    margin: .5vh 1vw 0 calc(1.5vw + 36px); 
+    height: 5%; 
+    border-radius: .25vw; 
+    position: relative; 
+    background: lightgray; 
+}
+
 #topButtons{
     display: grid;
-    grid-template-columns: max-content max-content max-content max-content; 
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
     gap: 1vw;
     align-items: end;
     box-sizing: border-box; 

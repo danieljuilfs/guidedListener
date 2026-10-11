@@ -8,11 +8,14 @@ const titleInput = document.getElementById("trackInput");
 const composerInput = document.getElementById("composerInput");
 const addSection = document.getElementById("addSection");
 const removeSection = document.getElementById("removeSection");
-const addCue = document.getElementById("addCue");
-const removeCue = document.getElementById("removeCue");
+const addComment = document.getElementById("addComment");
+const removeComment = document.getElementById("removeComment");
+const addKey = document.getElementById("addKey");
+const removeKey = document.getElementById("removeKey");
 let selectedDiv = null;
 let selectedSection = undefined;
-let selectedCue = undefined;
+let selectedComment = undefined;
+let selectedKey = undefined;
 let trackItem;
 let listenerType;
 //hold the divs
@@ -21,10 +24,13 @@ const divMap = new Map();
 const sectionsArr = [];
 //keep track of the section ids
 let id = 0;
-let cueId = 0;
-//holds cue objects
-const cueArr = [];
-const cueMap = new Map();
+let commentId = 0;
+let keyId = 0;
+//holds comment objects
+const commentArr = [];
+const keyArr = [];
+const commentMap = new Map();
+const keyMap = new Map();
 //change set the editor state on page load
 updateState();
 //the JWT for accessing the authentication 
@@ -34,9 +40,13 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
     const input = document.getElementById("trackLink");
     //get the url so you can split it. 
     const url = input.value;
+    const selectedType = document.querySelector('input[name="typeSelect"]:checked');
+    if (!selectedType) {
+        alert("Please select a listener type.");
+        return; // Or handle the error however you want
+    }
     //set the listener type
     listenerType = document.querySelector('input[name="typeSelect"]:checked').value;
-    console.log("listenerType: ", listenerType);
     //if the url is malformed, alert the user
     if (!url.includes("?i=")) {
         alert("That is not a valid track address");
@@ -59,11 +69,13 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
         document.getElementById("translation").style.display = "none";
     document.getElementById("playBtn")?.addEventListener("click", musicService.togglePlay);
     document.getElementById("removeSection")?.addEventListener("click", () => deleteDiv("section"));
-    document.getElementById("addCue")?.addEventListener("click", createCue);
-    document.getElementById("removeCue")?.addEventListener("click", () => deleteDiv("cue"));
+    document.getElementById("addComment")?.addEventListener("click", createComment);
+    document.getElementById("removeComment")?.addEventListener("click", () => deleteDiv("comment"));
+    document.getElementById("addKey")?.addEventListener("click", createKey);
+    document.getElementById("removeKey")?.addEventListener("click", () => deleteDiv("key"));
     document.getElementById("notes")?.addEventListener("input", () => {
         //if there is no selected section, return
-        if (!selectedSection && !selectedCue)
+        if (!selectedSection && !selectedComment)
             return;
         //container to hold the notes
         const notesDiv = document.getElementById("notes")?.textContent;
@@ -77,15 +89,15 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
                 selectedSection.translation = translation;
             }
         }
-        if (selectedCue) {
-            const notes = notesDiv ? notesDiv : "Add Cue Comment";
-            selectedCue.notes = notes;
+        if (selectedComment) {
+            const notes = notesDiv ? notesDiv : "Add Comment";
+            selectedComment.notes = notes;
         }
     });
     if (listenerType === "vocal") {
         document.getElementById("translation")?.addEventListener("input", () => {
             //if there is no selected section, return
-            if (!selectedSection && !selectedCue)
+            if (!selectedSection && !selectedComment)
                 return;
             //container to hold the notes
             const translationDiv = document.getElementById("translation")?.textContent;
@@ -93,15 +105,15 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
                 //if it does exist get the translation equal to the text content if it exists, otherwise its empty. 
                 const translation = translationDiv ? translationDiv : "Add Translation";
                 selectedSection.translation = translation;
-                if (listenerType === "vocal ") {
+                if (listenerType === "vocal") {
                     const translationDiv = document.getElementById("translation")?.textContent;
                     const translation = translationDiv ? translationDiv : "Add Translation";
                     selectedSection.translation = translation;
                 }
             }
-            if (selectedCue) {
+            if (selectedComment) {
                 const translation = translationDiv ? translationDiv : "Add translation Comment";
-                selectedCue.translation = translation;
+                selectedComment.translation = translation;
             }
         });
     }
@@ -149,8 +161,10 @@ function updateState() {
     if (ready) {
         addSection.classList.remove("disabledDiv");
         removeSection.classList.remove("disabledDiv");
-        addCue.classList.remove("disabledDiv");
-        removeCue.classList.remove("disabledDiv");
+        addComment.classList.remove("disabledDiv");
+        removeComment.classList.remove("disabledDiv");
+        addKey.classList.remove("disabledDiv");
+        removeKey.classList.remove("disabledDiv");
     }
 }
 function createSection() {
@@ -176,7 +190,7 @@ function createSection() {
     const newSection = {
         sectionNumber: id,
         measure: "m. #",
-        sectionName: "Title Section",
+        sectionName: "Section Label",
         startTime: currentTime,
         lyrics: "Add Lyrics",
         translation: "Add Translation",
@@ -217,14 +231,14 @@ function createSection() {
     //add the class to the section title
     sectionTitle.classList.add("sectionTitle");
     sectionTitle.addEventListener("input", () => {
-        newSection.sectionName = sectionTitle.textContent ?? "Add Title";
+        newSection.sectionName = sectionTitle.textContent ?? "Section Label";
     });
-    //create container to hold the cues
-    let cueDiv = document.createElement("div");
+    //create container to hold the comments
+    let commentDiv = document.createElement("div");
     //append it
-    sectionContainer.append(cueDiv);
-    //add the clas to it
-    cueDiv.classList.add("cues");
+    sectionContainer.append(commentDiv);
+    //add the class to it
+    commentDiv.classList.add("comments");
     divMap.set(id, sectionContainer);
     //increment id now that we are done working with it
     id++;
@@ -232,42 +246,80 @@ function createSection() {
     drawDivs();
     onFocus(sectionContainer, "section");
 }
-//creates the cue and adds it to the cue array. drawdivs is called to draw the divs which handles the section drawin g. 
-function createCue() {
+//creates the comment and adds it to the comment array. drawdivs is called to draw the divs which handles the section drawin g. 
+function createComment() {
     //get the current playback time. 
     let currentTime = musicService.getCurrentTime();
     if (currentTime === 0 && sectionsArr.length > 0) {
         alert("Track must be playing!");
         return;
     }
-    //make sure that the cue is not being created at the start of a section.
+    //make sure that the comment is not being created at the start of a section.
     const badStart = sectionsArr.find(section => section.startTime === currentTime);
     if (badStart) {
-        alert("Cannot add a cue at the starting point of a section");
+        alert("Cannot add a comment at the starting point of a section");
         return;
     }
     //check for duplicates
-    let duplicateStart = checkDuplicates(currentTime, "cues");
+    let duplicateStart = checkDuplicates(currentTime, "comments");
     if (duplicateStart) {
-        alert("Cannot have two cues with the same start time!");
+        alert("Cannot have two comments with the same start time!");
         return;
     }
-    //create the cue
-    const newCue = {
-        cueNumber: cueId,
+    let commentDist = checkCommentDistance(currentTime);
+    if (commentDist) {
+        alert("Cannot have two comments that close to each other!");
+        return;
+    }
+    //create the comment
+    const newComment = {
+        commentNumber: commentId,
         startTime: currentTime,
         lyrics: "Add Lyrics",
         translation: "Add Translation",
-        notes: "Add Cue Commentary"
+        notes: "Add Commentary"
     };
-    //add the cue to the array. 
-    cueArr.push(newCue);
+    //add the comment to the array. 
+    commentArr.push(newComment);
     //increment the counter
-    cueId++;
+    commentId++;
     drawDivs();
-    //set the new cue to the focus. 
-    if (cueMap.get(newCue.cueNumber)) {
-        onFocus(cueMap.get(newCue.cueNumber), "cue");
+    //set the new comment to the focus. 
+    if (commentMap.get(newComment.commentNumber)) {
+        onFocus(commentMap.get(newComment.commentNumber), "comment");
+    }
+    ;
+}
+//creates the key and adds it to the key array. drawdivs is called to draw the divs which handles the section drawin g. 
+function createKey() {
+    //get the current playback time. 
+    let currentTime = musicService.getCurrentTime();
+    //check for duplicates
+    let duplicateStart = checkDuplicates(currentTime, "key");
+    if (duplicateStart) {
+        alert("Cannot have two keys with the same start time!");
+        return;
+    }
+    let keyDist = checkKeyDistance(currentTime);
+    console.log("keyDist:" + keyDist);
+    if (keyDist) {
+        alert("Cannot have two keys that close to each other!");
+        return;
+    }
+    //create the key
+    const newKey = {
+        keyNumber: keyId,
+        startTime: currentTime,
+        text: "key"
+    };
+    //add the key to the array. 
+    keyArr.push(newKey);
+    //increment the counter
+    keyId++;
+    drawDivs();
+    //set the new key to the focus. 
+    if (keyMap.get(newKey.keyNumber)) {
+        onFocus(keyMap.get(newKey.keyNumber), "key");
     }
     ;
 }
@@ -315,8 +367,8 @@ function drawDivs() {
     const sectionParent = document.getElementById("sections");
     //empty the container. 
     sectionParent.replaceChildren();
-    //sort the cues array to speed up access when we go to add them to the div containers. 
-    cueArr.sort((a, b) => a.startTime - b.startTime);
+    //sort the comments array to speed up access when we go to add them to the div containers. 
+    commentArr.sort((a, b) => a.startTime - b.startTime);
     //iterate over the sections, grab the divs in order, and add them to the dom by id
     sectionsArr.forEach((sec, index) => {
         //the sections div should be in order, because everything is just sliced in via insertion. 
@@ -328,23 +380,58 @@ function drawDivs() {
             //set the stlye on the div
             toAdd.style.width = `${divWidth}vw`;
             sectionParent.append(toAdd);
-            //fetch the cue div
-            const cueDiv = toAdd.querySelector(".cues");
-            //empty the cue div
-            cueDiv?.replaceChildren();
-            //get the array of cue divs
-            const cuesToAdd = addCues(index);
+            //fetch the comment div
+            const commentDiv = toAdd.querySelector(".comments");
+            //empty the comment div
+            commentDiv?.replaceChildren();
+            //get the array of comment divs
+            const commentsToAdd = addComments(index);
             //iterate over each adding the listener to it. 
-            cuesToAdd.forEach((newCue) => {
-                newCue.addEventListener("click", (event) => {
+            commentsToAdd.forEach((newComment) => {
+                newComment.addEventListener("click", (event) => {
                     event.stopPropagation();
-                    onFocus(newCue, "cue");
+                    onFocus(newComment, "comment");
                 });
-                cueDiv.append(newCue);
+                commentDiv.append(newComment);
             });
             //append it
-            toAdd.append(cueDiv);
+            toAdd.append(commentDiv);
         }
+    });
+    //sort the key array 
+    keyArr.sort((a, b) => a.startTime - b.startTime);
+    //get the containers width
+    const keyContainer = document.getElementById("keyBar");
+    //empty the key container
+    keyContainer.replaceChildren();
+    keyArr.forEach((key, index) => {
+        //get key, get its time, use that time to determine where it belongs on the page. create the div with the information in it, set its left to wherever it needs to align. 
+        //get the key time
+        const time = key.startTime;
+        const length = musicService.getDuration();
+        const left = (time / length) * 100;
+        //create the div to hold the key
+        const keyDiv = document.createElement("div");
+        //set its text
+        keyDiv.textContent = key.text;
+        //need to assign its position to be relative to its parent
+        keyDiv.style.position = "absolute";
+        keyDiv.style.left = `${left}%`;
+        //make the div editable
+        keyDiv.contentEditable = "true";
+        //set its width
+        keyDiv.style.width = "60px";
+        //set its key number
+        keyDiv.dataset.keyNumber = String(key.keyNumber);
+        keyDiv.classList.add("key");
+        keyDiv.addEventListener("click", (event) => {
+            event.stopPropagation();
+            onFocus(keyDiv, "key");
+        });
+        //append the container to its parent
+        keyContainer.appendChild(keyDiv);
+        //add the key to the map
+        keyMap.set(index, keyDiv);
     });
 }
 function resetSections() {
@@ -352,16 +439,21 @@ function resetSections() {
     const sectionParent = document.getElementById("sections");
     sectionParent.replaceChildren();
     id = 0;
-    //reset the array and map
+    //reset the array and maps
     sectionsArr.length = 0;
     divMap.clear();
-    cueMap.clear();
+    commentMap.clear();
+    keyMap.clear();
     document.getElementById("translation").style.display = "";
 }
 function deleteDiv(type) {
     const div = selectedDiv;
+    if (!div?.classList.contains(type)) {
+        alert("types must match to delete");
+        return;
+    }
     if (!div) {
-        alert("Must select a section to delete");
+        alert("Must select something to delete");
         return;
     }
     if (type === "section") {
@@ -372,7 +464,7 @@ function deleteDiv(type) {
         const id = Number(div.dataset.sectionId);
         //can use loose equality because checking for both null and undefined is fine!
         if (id == null) {
-            alert("Must have a section selection!");
+            alert("Must have a section selected!");
             return;
         }
         //delete the section from the map. 
@@ -390,20 +482,36 @@ function deleteDiv(type) {
         //set the focus as the div that was just created. 
         onFocus(divMap.values().next().value, "section");
     }
-    if (type === "cue") {
+    if (type === "comment") {
         //get the divs id
-        const id = Number(div.dataset.cueNumber);
-        //delete the cue from the map of divs
-        cueMap.delete(id);
+        const id = Number(div.dataset.commentNumber);
         if (id === null) {
-            alert("Must have a cue selected!");
+            alert("Must have a comment selected!");
             return;
         }
-        //get the index of the cue to delete. 
-        const index = cueArr.findIndex(cue => cue.cueNumber === id);
-        //if index esists, delete the cue. 
+        //delete the comment from the map of divs
+        commentMap.delete(id);
+        //get the index of the comment to delete. 
+        const index = commentArr.findIndex(comment => comment.commentNumber === id);
+        //if index esists, delete the comment. 
         if (index !== -1) {
-            cueArr.splice(index, 1);
+            commentArr.splice(index, 1);
+        }
+    }
+    if (type === "key") {
+        //get the divs id
+        const id = Number(div.dataset.keyNumber);
+        if (id === null) {
+            alert("Must have a key selected!");
+            return;
+        }
+        //delete the key from the map of divs
+        keyMap.delete(id);
+        //get the index of the key to delete. 
+        const index = keyArr.findIndex(key => key.keyNumber === id);
+        //if index exists, delete the key. 
+        if (index !== -1) {
+            keyArr.splice(index, 1);
         }
     }
     drawDivs();
@@ -426,16 +534,24 @@ function onFocus(div, type) {
         //set the section as the selected. 
         if (section) {
             selectedSection = section;
-            selectedCue = undefined;
+            selectedComment = undefined;
             loadComments(selectedDiv, "section");
         }
     }
-    if (type === "cue") {
-        const cue = cueArr.find(cue => cue.cueNumber === Number(selectedDiv?.dataset.cueNumber));
-        if (cue) {
+    if (type === "comment") {
+        const comment = commentArr.find(comment => comment.commentNumber === Number(selectedDiv?.dataset.commentNumber));
+        if (comment) {
             selectedSection = undefined;
-            selectedCue = cue;
-            loadComments(selectedDiv, "cue");
+            selectedComment = comment;
+            loadComments(selectedDiv, "comment");
+        }
+    }
+    if (type === "key") {
+        const key = keyArr.find(key => key.keyNumber === Number(selectedDiv?.dataset.keyNumber));
+        if (key) {
+            selectedSection = undefined;
+            selectedComment = undefined;
+            selectedKey = key;
         }
     }
 }
@@ -456,13 +572,13 @@ function loadComments(div, type) {
             }
         }
     }
-    if (type === "cue")
-        //if the cue exists, add the cue comment. 
-        if (selectedCue) {
+    if (type === "comment")
+        //if the comment exists, add the comment. 
+        if (selectedComment) {
             if (notes)
-                notes.textContent = selectedCue.notes ? selectedCue.notes : "Add Cue Comment";
+                notes.textContent = selectedComment.notes ? selectedComment.notes : "Add Comment";
             if (translationDiv && listenerType === "vocal") {
-                translationDiv.textContent = selectedCue.translation ? selectedCue.translation : "Add Translation";
+                translationDiv.textContent = selectedComment.translation ? selectedComment.translation : "Add Translation";
             }
         }
 }
@@ -482,8 +598,11 @@ function findSectionIndex(currentTime) {
 }
 function checkDuplicates(currentTime, type) {
     let arr;
-    if (type === "cues") {
-        arr = cueArr;
+    if (type === "comment") {
+        arr = commentArr;
+    }
+    else if (type === "key") {
+        arr = keyArr;
     }
     else {
         arr = sectionsArr;
@@ -494,8 +613,8 @@ function checkDuplicates(currentTime, type) {
     }
     return false;
 }
-function addCues(index) {
-    const cues = [];
+function addComments(index) {
+    const comments = [];
     //get the start time of the current section
     let curTime;
     //if the section exists, get its current time.
@@ -507,34 +626,76 @@ function addCues(index) {
     let nextTime = musicService.getDuration();
     if (sectionsArr[nextIndex])
         nextTime = sectionsArr[nextIndex].startTime;
-    //if the cues start time is greater than or equal to the current time, and less than the next time, it belongs in this sections array. 
-    cueArr.forEach((cue) => {
-        if (cue.startTime >= curTime && cue.startTime < nextTime) {
+    //if the comments start time is greater than or equal to the current time, and less than the next time, it belongs in this sections array. 
+    commentArr.forEach((comment) => {
+        if (comment.startTime >= curTime && comment.startTime < nextTime) {
             //add the div to the section. 
-            const newCue = document.createElement("div");
+            const newComment = document.createElement("div");
             //add the class to style it. 
-            newCue.classList.add("cue");
-            //put the marker inside the cue.
-            const cueMarker = document.createElement("div");
-            cueMarker.classList.add("marker");
-            //add the cuemarker to the cue div. 
-            newCue.append(cueMarker);
+            newComment.classList.add("comment");
+            //put the marker inside the comment.
+            const commentMarker = document.createElement("div");
+            commentMarker.classList.add("marker");
+            //add the commentmarker to the comment div. 
+            newComment.append(commentMarker);
             //calculate the length of the section.
             const trackLength = nextTime - curTime;
             //adjust the time to account for the length of the section rather than the whole song
-            const adjustedTime = cue.startTime - curTime;
+            const adjustedTime = comment.startTime - curTime;
             //get the position of the track
             const position = (adjustedTime / trackLength) * 100;
-            //set the cues position
-            newCue.style.left = `${position}%`;
-            //set the cuenumber into the cue
-            newCue.dataset.cueNumber = String(cue.cueNumber);
-            //put the cue in the map
-            cueMap.set(cue.cueNumber, newCue);
-            //add the cue to the array
-            cues.push(newCue);
+            //set the comments position
+            newComment.style.left = `${position}%`;
+            //set the commentnumber into the comment
+            newComment.dataset.commentNumber = String(comment.commentNumber);
+            //put the comment in the map
+            commentMap.set(comment.commentNumber, newComment);
+            //add the comment to the array
+            comments.push(newComment);
         }
     });
-    return cues;
+    return comments;
+}
+function checkCommentDistance(currentTime) {
+    let commentDistance = false;
+    //get the sections container
+    const sections = document.getElementById("sections");
+    //get the track length
+    const trackDuration = musicService.getDuration();
+    //get the width of the container
+    const containerWidth = sections?.clientWidth;
+    //how many seconds make up 10 pixels
+    let secondsPerTen = 1;
+    if (containerWidth) {
+        //calculates how many seconds make up ten pixels, because 10 is the default pixel size of a comment. 
+        secondsPerTen = 10 * trackDuration / containerWidth;
+        //iterate over the comment arr, compare the difference between the current time and the comments time, if its too small, return true
+        commentArr.forEach((comment) => {
+            if (Math.abs(currentTime - comment.startTime) < secondsPerTen)
+                commentDistance = true;
+        });
+    }
+    return commentDistance;
+}
+function checkKeyDistance(currentTime) {
+    let keyDistance = false;
+    //get the keys container
+    const keys = document.getElementById("keyBar");
+    //get the track length
+    const trackDuration = musicService.getDuration();
+    //get the width of the container
+    const containerWidth = keys?.clientWidth;
+    //how many seconds make up 10 pixels. setting a default number. 
+    let secondsPerTen = 1;
+    if (containerWidth) {
+        //calculates how many seconds make up 60 pixels, because 60 is the default pixel size of a comment. 
+        secondsPerTen = 60 * trackDuration / containerWidth;
+        //iterate over the key arr, compare the difference between the current time and the comments time, if its too small, return true
+        keyArr.forEach((key) => {
+            if (Math.abs(currentTime - key.startTime) < secondsPerTen)
+                keyDistance = true;
+        });
+    }
+    return keyDistance;
 }
 //# sourceMappingURL=create.js.map
