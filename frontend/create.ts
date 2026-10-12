@@ -47,6 +47,8 @@ const addKey: HTMLDivElement = document.getElementById("addKey") as HTMLDivEleme
 
 const removeKey: HTMLDivElement = document.getElementById("removeKey") as HTMLDivElement; 
 
+const save: HTMLDivElement = document.getElementById("save") as HTMLDivElement;
+
 let selectedDiv: HTMLDivElement | null = null;
 
 let selectedSection: section | undefined = undefined; 
@@ -80,6 +82,8 @@ const keyArr: key[]  = [];
 const commentMap: Map<number, HTMLDivElement> = new Map(); 
 
 const keyMap: Map<number, HTMLDivElement> = new Map(); 
+
+let dbID: number | undefined = undefined;  
 
 //change set the editor state on page load
 updateState(); 
@@ -133,6 +137,7 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
     document.getElementById("removeComment")?.addEventListener("click", () =>  deleteDiv("comment"))
     document.getElementById("addKey")?.addEventListener("click", createKey); 
     document.getElementById("removeKey")?.addEventListener("click", () => deleteDiv("key")); 
+    document.getElementById("save")?.addEventListener("click", async () => saveFcn()); 
     document.getElementById("notes")?.addEventListener("input", () => {
       //if there is no selected section, return
       if (!selectedSection && !selectedComment) return
@@ -246,6 +251,7 @@ function updateState() {
     removeComment.classList.remove("disabledDiv"); 
     addKey.classList.remove("disabledDiv"); 
     removeKey.classList.remove("disabledDiv"); 
+    save.classList.remove("disabledDiv"); 
   }
 }
 
@@ -957,4 +963,32 @@ function checkKeyDistance(currentTime: number): boolean {
     )
   }
   return keyDistance; 
+}
+
+async function saveFcn(): Promise<void> {
+
+  //create the object
+  const listeningMap = {
+    songId: songId,
+    title: titleInput.value,
+    composer: composerInput.value,
+    sections: sectionsArr,
+    comments: commentArr,
+    keys: keyArr
+  }
+
+  console.log("Listening map", listeningMap); 
+/*
+  //if dbID is still undefined then we have yet to save once. 
+  if (dbID === undefined) {
+    const response = await fetch("http://localhost:3001/annotations", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(listeningMap)
+  });
+    const data = await response.json();
+    dbID = data.id; 
+  }*/
 }

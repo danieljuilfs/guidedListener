@@ -12,6 +12,7 @@ const addComment = document.getElementById("addComment");
 const removeComment = document.getElementById("removeComment");
 const addKey = document.getElementById("addKey");
 const removeKey = document.getElementById("removeKey");
+const save = document.getElementById("save");
 let selectedDiv = null;
 let selectedSection = undefined;
 let selectedComment = undefined;
@@ -31,6 +32,7 @@ const commentArr = [];
 const keyArr = [];
 const commentMap = new Map();
 const keyMap = new Map();
+let dbID = undefined;
 //change set the editor state on page load
 updateState();
 //the JWT for accessing the authentication 
@@ -73,6 +75,7 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
     document.getElementById("removeComment")?.addEventListener("click", () => deleteDiv("comment"));
     document.getElementById("addKey")?.addEventListener("click", createKey);
     document.getElementById("removeKey")?.addEventListener("click", () => deleteDiv("key"));
+    document.getElementById("save")?.addEventListener("click", async () => saveFcn());
     document.getElementById("notes")?.addEventListener("input", () => {
         //if there is no selected section, return
         if (!selectedSection && !selectedComment)
@@ -165,6 +168,7 @@ function updateState() {
         removeComment.classList.remove("disabledDiv");
         addKey.classList.remove("disabledDiv");
         removeKey.classList.remove("disabledDiv");
+        save.classList.remove("disabledDiv");
     }
 }
 function createSection() {
@@ -697,5 +701,30 @@ function checkKeyDistance(currentTime) {
         });
     }
     return keyDistance;
+}
+async function saveFcn() {
+    //create the object
+    const listeningMap = {
+        songId: songId,
+        title: titleInput.value,
+        composer: composerInput.value,
+        sections: sectionsArr,
+        comments: commentArr,
+        keys: keyArr
+    };
+    console.log("Listening map", listeningMap);
+    /*
+      //if dbID is still undefined then we have yet to save once.
+      if (dbID === undefined) {
+        const response = await fetch("http://localhost:3001/annotations", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(listeningMap)
+      });
+        const data = await response.json();
+        dbID = data.id;
+      }*/
 }
 //# sourceMappingURL=create.js.map

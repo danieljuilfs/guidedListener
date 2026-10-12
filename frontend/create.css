@@ -17,6 +17,10 @@ body {
 
 }
 
+legend {
+    width: fit-content; 
+}
+
 .disabledDiv {
     color: dimgray ; 
     border: none !important; 
@@ -36,6 +40,7 @@ body {
 	top: 50%;
 	transform: translateY(-50%);
 }
+
 
 
 .section {
@@ -143,27 +148,46 @@ body {
     background: lightgray; 
 }
 
-#topButtons{
+#listenerType {
+    width: fit-content;
+}
+
+
+#topButtons {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1vw;
+    align-items: end;
+    box-sizing: border-box;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-left: calc(1.5vw + 36px);
+    width: 57.25vw;
+}
+
+#actionButtons {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: max-content;
     gap: 1vw;
-    align-items: end;
-    box-sizing: border-box; 
-    font-size: 1.25rem; 
-    font-weight: 700; 
-    margin-left: calc(1.5vw + 36px); 
+    justify-content: start;
 }
 
-#topButtons > div {
-    border: 1px solid transparent; 
+#save {
+    justify-self: end;
 }
 
-#topButtons > div:hover {
-    width: max-content;  
-    border: 1px solid black; 
-    opacity: .8; 
-    cursor: default; 
+#actionButtons > div,
+#save {
+    border: 1px solid transparent;
+    box-sizing: border-box;
+}
+
+#actionButtons > div:hover,
+#save:hover {
+    border-color: black;
+    opacity: 0.8;
+    cursor: default;
 }
 
 #notes {
@@ -216,6 +240,9 @@ body {
     border-width: .1vh; 
 }
 
+#save {
+    margin-left: auto;
+}
 
 #sections {
     display: grid;
@@ -246,7 +273,7 @@ body {
 
 #trackSetup {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: max-content auto auto;
 }
 
 #trackLink {
