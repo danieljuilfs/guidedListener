@@ -1,0 +1,1 @@
+This application is a music education tool designed to enable musical educators to create annotated timelines. These timelines provide students with notes and information displayed in real time as a track plays to guide their learning. 
