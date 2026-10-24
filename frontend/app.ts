@@ -5,6 +5,7 @@ import { updateTrack } from "./trackInfo.js"
 import type { GuidedListener } from "./annotations.js"
 import "./hoverTimer.js"; 
 import "./trackInfo.js"; 
+import address from "./server.js";
 
 
 //the JWT for accessing the user 
@@ -14,7 +15,15 @@ if (!jwt) {
     throw new Error("JWT is missing");
 }
 
-const response = await fetch("http://192.168.1.13:3001/annotations/1"); 
+//form the address to call
+let id: string = "1"; 
+
+const toFetch: string = address + "/" + id; 
+
+console.log(toFetch); 
+
+const response = await fetch(toFetch); 
+
 
 if (!response.ok) {
     throw new Error("Failed to load track.");

@@ -4,12 +4,17 @@ import { createAnnotations } from "./annotations.js";
 import { updateTrack } from "./trackInfo.js";
 import "./hoverTimer.js";
 import "./trackInfo.js";
+import address from "./server.js";
 //the JWT for accessing the user 
 const jwt = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNWUUw4VFVHQUsifQ.eyJpYXQiOjE3ODE2MjA1NjEsImV4cCI6MTc5NzE3MjU2MSwiaXNzIjoiTVdCNEs2RjNCMyJ9.5csNY_Z_PWoDdADL2_a9ihAdP5pbAA61gGR90hsIlM3PzvokPcVM-n-56a1QpX4LfyGZ39wWwvciPRm5nrgdyA";
 if (!jwt) {
     throw new Error("JWT is missing");
 }
-const response = await fetch("http://192.168.1.13:3001/annotations/1");
+//form the address to call
+let id = "1";
+const toFetch = address + "/" + id;
+console.log(toFetch);
+const response = await fetch(toFetch);
 if (!response.ok) {
     throw new Error("Failed to load track.");
 }
