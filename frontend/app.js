@@ -12,7 +12,7 @@ if (!jwt) {
 }
 //form the address to call
 let id = "1";
-const toFetch = address + "/" + id;
+const toFetch = address + "/annotations/" + id;
 console.log(toFetch);
 const response = await fetch(toFetch);
 if (!response.ok) {

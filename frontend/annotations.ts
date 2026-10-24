@@ -1,4 +1,4 @@
-export interface GuidedListener {
+export interface ListeningMap {
   pk: number, 
   title: string; 
   composer: string; 
@@ -19,14 +19,14 @@ export interface section {
   notes?: string; 
 }
 
-let annotations: GuidedListener; 
+let annotations: ListeningMap; 
 
 //holds the notes for the sections
 const notes: string[] = []; 
 
 const ends: number[] = [];
 
-export function createAnnotations(request: GuidedListener) {
+export function createAnnotations(request: ListeningMap) {
 
   annotations = request; 
 
@@ -53,14 +53,6 @@ export function createAnnotations(request: GuidedListener) {
     ends.push(curSection.endtime); 
   }
 
-  //get the width of the clickTrack so we can dynamically compute the width of the sections
-  //const track: HTMLDivElement = document.getElementById("clickTrack") as HTMLDivElement; 
-
-  //const paddingLeft: number = parseFloat(getComputedStyle(track).paddingLeft); 
-
-  //get the correct left padding by getting tracks Left rect and adding its padding. 
-  //sectionDiv.style.paddingLeft = `${track.getBoundingClientRect().left + paddingLeft}px`; 
-
   //set the width based on the size of each container
   sectionDiv.style.gridTemplateColumns = columns.join(" "); 
 
@@ -70,7 +62,7 @@ export function createAnnotations(request: GuidedListener) {
   noteDiv.textContent = notes[0]!;
  }
 
-export function getAnnotations(): GuidedListener {
+export function getAnnotations(): ListeningMap {
   return annotations; 
 }
 

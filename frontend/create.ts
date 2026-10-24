@@ -61,6 +61,10 @@ let trackItem: MusicKit.MediaItem;
 
 let listenerType: string; 
 
+let album: string; 
+
+let url: string; 
+
 //hold the divs
 const divMap: Map<number, HTMLDivElement> = new Map(); 
 
@@ -83,7 +87,9 @@ const commentMap: Map<number, HTMLDivElement> = new Map();
 
 const keyMap: Map<number, HTMLDivElement> = new Map(); 
 
-let dbID: number | undefined = undefined;  
+let dbID: number | undefined = undefined; 
+
+let performer: string = ""; 
 
 //change set the editor state on page load
 updateState(); 
@@ -96,7 +102,7 @@ document.getElementById("loadTrack")!.addEventListener("click", async () => {
     const input: HTMLInputElement = document.getElementById("trackLink") as HTMLInputElement; 
 
     //get the url so you can split it. 
-    const url: string = input.value; 
+    url = input.value; 
 
     const selectedType = document.querySelector<HTMLInputElement>('input[name="typeSelect"]:checked');
 
@@ -207,6 +213,14 @@ async function displayTrack() {
 
     //set the composer
     composerInput.value = trackItem.attributes.composerName;
+
+    //set the performer for use in saving
+    performer = trackItem.attributes.artistName; 
+    console.log(performer); 
+
+    //set the album for use in saving
+    album = trackItem.attributes.albumName; 
+    console.log("albumName:" + album); 
 
     //get the duration, divide by 1000, send to the formatter. 
     durationDiv.textContent = formatTime((trackItem.attributes.durationInMillis/1000)); 
@@ -969,6 +983,13 @@ async function saveFcn(): Promise<void> {
 
   //create the object
   const listeningMap = {
+
+
+    album: album,
+    trackid: songId, 
+    uri: url,  
+    duration: musicService.getDuration(),
+    performer: performer,
     songId: songId,
     title: titleInput.value,
     composer: composerInput.value,
@@ -977,10 +998,11 @@ async function saveFcn(): Promise<void> {
     keys: keyArr
   }
 
-  console.log("Listening map", listeningMap); 
-/*
+  console.log(listeningMap); 
+
+
   //if dbID is still undefined then we have yet to save once. 
-  if (dbID === undefined) {
+  /*if (dbID === undefined) {
     const response = await fetch("http://localhost:3001/annotations", {
     method: "POST",
     headers: {
@@ -990,5 +1012,5 @@ async function saveFcn(): Promise<void> {
   });
     const data = await response.json();
     dbID = data.id; 
-  }*/
+  } */
 }

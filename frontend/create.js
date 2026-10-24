@@ -19,6 +19,8 @@ let selectedComment = undefined;
 let selectedKey = undefined;
 let trackItem;
 let listenerType;
+let album;
+let url;
 //hold the divs
 const divMap = new Map();
 //hold the section objects
@@ -33,6 +35,7 @@ const keyArr = [];
 const commentMap = new Map();
 const keyMap = new Map();
 let dbID = undefined;
+let performer = "";
 //change set the editor state on page load
 updateState();
 //the JWT for accessing the authentication 
@@ -41,7 +44,7 @@ document.getElementById("loadTrack").addEventListener("click", async () => {
     //get the track element
     const input = document.getElementById("trackLink");
     //get the url so you can split it. 
-    const url = input.value;
+    url = input.value;
     const selectedType = document.querySelector('input[name="typeSelect"]:checked');
     if (!selectedType) {
         alert("Please select a listener type.");
@@ -133,6 +136,12 @@ async function displayTrack() {
     titleInput.value = trackItem.attributes.name;
     //set the composer
     composerInput.value = trackItem.attributes.composerName;
+    //set the performer for use in saving
+    performer = trackItem.attributes.artistName;
+    console.log(performer);
+    //set the album for use in saving
+    album = trackItem.attributes.albumName;
+    console.log("albumName:" + album);
     //get the duration, divide by 1000, send to the formatter. 
     durationDiv.textContent = formatTime((trackItem.attributes.durationInMillis / 1000));
     document.getElementById("addSection")?.addEventListener("click", createSection);
@@ -705,6 +714,11 @@ function checkKeyDistance(currentTime) {
 async function saveFcn() {
     //create the object
     const listeningMap = {
+        album: album,
+        trackid: songId,
+        uri: url,
+        duration: musicService.getDuration(),
+        performer: performer,
         songId: songId,
         title: titleInput.value,
         composer: composerInput.value,
@@ -712,19 +726,18 @@ async function saveFcn() {
         comments: commentArr,
         keys: keyArr
     };
-    console.log("Listening map", listeningMap);
-    /*
-      //if dbID is still undefined then we have yet to save once.
-      if (dbID === undefined) {
-        const response = await fetch("http://localhost:3001/annotations", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(listeningMap)
-      });
-        const data = await response.json();
-        dbID = data.id;
-      }*/
+    console.log(listeningMap);
+    //if dbID is still undefined then we have yet to save once. 
+    /*if (dbID === undefined) {
+      const response = await fetch("http://localhost:3001/annotations", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json"
+      },
+      body: JSON.stringify(listeningMap)
+    });
+      const data = await response.json();
+      dbID = data.id;
+    } */
 }
 //# sourceMappingURL=create.js.map

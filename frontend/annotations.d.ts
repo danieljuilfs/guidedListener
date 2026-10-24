@@ -1,4 +1,4 @@
-export interface GuidedListener {
+export interface ListeningMap {
     pk: number;
     title: string;
     composer: string;
@@ -17,8 +17,8 @@ export interface section {
     endtime: number;
     notes?: string;
 }
-export declare function createAnnotations(request: GuidedListener): void;
-export declare function getAnnotations(): GuidedListener;
+export declare function createAnnotations(request: ListeningMap): void;
+export declare function getAnnotations(): ListeningMap;
 export declare function getNotes(): string[];
 export declare function getEnds(): number[];
 //# sourceMappingURL=annotations.d.ts.map

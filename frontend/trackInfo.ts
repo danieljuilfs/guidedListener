@@ -1,4 +1,4 @@
-import type { GuidedListener } from "./annotations.js";
+import type { ListeningMap } from "./annotations.js";
 import { getAnnotations, getNotes, getEnds } from "./annotations.js"; 
 import { formatTime } from "./utils.js"; 
 import { getCurrentTime, getDuration, getQueue } from "./musicService.js"; 
@@ -17,7 +17,7 @@ let nextTime: number;
 //updates the track name, duration time, composer. 
 export function updateTrack(): void {
 
-  const annotations: GuidedListener = getAnnotations(); 
+  const annotations: ListeningMap = getAnnotations(); 
 
   //moved initialization inside the function to prevent stale initialization. 
   ends = getEnds(); 

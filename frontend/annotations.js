@@ -21,11 +21,6 @@ export function createAnnotations(request) {
         //push the end times. 
         ends.push(curSection.endtime);
     }
-    //get the width of the clickTrack so we can dynamically compute the width of the sections
-    //const track: HTMLDivElement = document.getElementById("clickTrack") as HTMLDivElement; 
-    //const paddingLeft: number = parseFloat(getComputedStyle(track).paddingLeft); 
-    //get the correct left padding by getting tracks Left rect and adding its padding. 
-    //sectionDiv.style.paddingLeft = `${track.getBoundingClientRect().left + paddingLeft}px`; 
     //set the width based on the size of each container
     sectionDiv.style.gridTemplateColumns = columns.join(" ");
     //set the starting text for note div. 

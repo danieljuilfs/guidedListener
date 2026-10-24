@@ -2,7 +2,7 @@
 import * as musicService from "./musicService.js";
 import { createAnnotations } from "./annotations.js"; 
 import { updateTrack } from "./trackInfo.js"
-import type { GuidedListener } from "./annotations.js"
+import type { ListeningMap } from "./annotations.js"
 import "./hoverTimer.js"; 
 import "./trackInfo.js"; 
 import address from "./server.js";
@@ -18,19 +18,18 @@ if (!jwt) {
 //form the address to call
 let id: string = "1"; 
 
-const toFetch: string = address + "/" + id; 
+const toFetch: string = address + "/annotations/" + id; 
 
 console.log(toFetch); 
 
 const response = await fetch(toFetch); 
-
 
 if (!response.ok) {
     throw new Error("Failed to load track.");
 }
 
 //get the track id from the database
-const json: GuidedListener = await response.json(); 
+const json: ListeningMap = await response.json(); 
 
 //apple music expects the trackid as a string funnily enough. 
 const songId: string = String(json.trackid); 
