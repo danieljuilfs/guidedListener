@@ -9,10 +9,10 @@ export async function read(id : number): Promise<Object | null> {
     let rows2; 
     try{
         conn = await pool.getConnection();
-        const sql = `SELECT * FROM annotations where pk = ?`
+        const sql = `SELECT * FROM listeningmaps where pk = ?`
         rows = await conn.query(sql, id); 
 
-        const sql2 = `SELECT * FROM SECTIONS WHERE annotationid = ?`
+        const sql2 = `SELECT * FROM SECTIONS WHERE mapid = ?`
         rows2 = await conn.query(sql2, id); 
 
         
