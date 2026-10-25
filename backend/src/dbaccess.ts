@@ -6,6 +6,7 @@ interface section {
   measure: string,  
   sectionName: string;
   startTime: number; 
+  endTime: number; 
   lyrics?: string; 
   translation?:  string; 
   notes?: string; 
@@ -70,6 +71,7 @@ export async function read(id : number): Promise<Object | null> {
 export async function create(listen: ListeningMap): Promise<number> {
     const connection = await pool.getConnection();
     try {
+        //want the entire insert to work as one transaction
         await connection.beginTransaction();
 
         const result = await connection.query(
@@ -86,7 +88,6 @@ export async function create(listen: ListeningMap): Promise<number> {
             ]
         );
 
-        console.log("result is: " + Number(result.insertId)); 
 
         const id = result.insertId;
 
@@ -103,7 +104,7 @@ export async function create(listen: ListeningMap): Promise<number> {
             if (secTrans === "Add Translation") secTrans = ""; 
             
             await connection.query(
-                "INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, notes) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, endTime, notes) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
                     
                     sectionObj.sectionNumber,
@@ -111,6 +112,7 @@ export async function create(listen: ListeningMap): Promise<number> {
                     sectionObj.measure,
                     sectionObj.sectionName,
                     sectionObj.startTime,
+                    sectionObj.endTime,
                     secNotes
                 ]
             );

@@ -24,8 +24,8 @@ CREATE TABLE sections (
     PRIMARY KEY (mapid, sectionnumber),
     sectionname varchar(200) NOT NULL,
     measure varchar(10), 
-    starttime INT NOT NULL,
-    endtime INT NOT NULL,
+    starttime decimal(8,2) NOT NULL,
+    endtime decimal(8,2) NOT NULL,
     notes VARCHAR(2000), 
     FOREIGN KEY (mapID) REFERENCES listeningMaps(pk)
 );
@@ -34,7 +34,7 @@ CREATE TABLE comments (
     commentNumber int not null,
     mapid int not null,
     PRIMARY KEY (mapid, commentnumber),
-    startTime int NOT NULL, 
+    startTime decimal(8,2) NOT NULL, 
     lyrics varchar(2000),
     translation varchar(2000), 
     notes varchar(2000),
@@ -45,7 +45,7 @@ CREATE TABLE mkeys (
     keyNumber INT NOT NULL,
     mapid int not null,
     PRIMARY KEY (keyNumber, mapid),
-    startTime int not null,
+    startTime decimal(8,2) not null,
     keyText varchar(3),
     FOREIGN KEY (mapid) references listeningMaps(pk)
 );
