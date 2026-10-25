@@ -8,6 +8,7 @@ interface section {
   measure: string,  
   sectionName: string;
   startTime: number; 
+  endTime: number; 
   lyrics?: string; 
   translation?:  string; 
   notes?: string; 
@@ -299,6 +300,7 @@ function createSection(): void {
     measure: "m. #", 
     sectionName: "Section Label",
     startTime: currentTime, 
+    endTime: getEndTime(id),
     lyrics: "Add Lyrics", 
     translation:  "Add Translation", 
     notes: "Add Section Commentary",
@@ -982,20 +984,21 @@ function checkKeyDistance(currentTime: number): boolean {
 async function saveFcn(): Promise<void> {
 
   //create the object
+  console.log("listenerType: " + listenerType); 
+
+
   const listeningMap = {
     album: album,
     trackid: Number(songId), 
     uri: url,  
-    duration: musicService.getDuration(),
+    duration: trackItem.attributes.durationInMillis/1000,
     performer: performer,
     title: titleInput.value,
     composer: composerInput.value,
     sections: sectionsArr,
     comments: commentArr,
     keys: keyArr,
-    type: listenerType
-
-    
+    type: listenerType  
   }
 
   console.log(listeningMap); 

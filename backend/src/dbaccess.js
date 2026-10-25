@@ -27,7 +27,7 @@ export async function create(listen) {
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
-        const result = await connection.query("INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration, type) VALUES (?, ?, ?, ?, ?, ?, ?)", [
+        const result = await connection.query("INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration, listenerType) VALUES (?, ?, ?, ?, ?, ?, ?)", [
             listen.title,
             listen.composer,
             listen.performer,
@@ -36,6 +36,7 @@ export async function create(listen) {
             listen.duration,
             listen.type
         ]);
+        console.log("result is: " + Number(result.insertId));
         const id = result[0].insertId;
         const sectionArr = listen.sections;
         const commentArr = listen.comments;

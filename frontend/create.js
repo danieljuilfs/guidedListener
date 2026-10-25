@@ -205,6 +205,7 @@ function createSection() {
         measure: "m. #",
         sectionName: "Section Label",
         startTime: currentTime,
+        endTime: getEndTime(id),
         lyrics: "Add Lyrics",
         translation: "Add Translation",
         notes: "Add Section Commentary",
@@ -713,17 +714,19 @@ function checkKeyDistance(currentTime) {
 }
 async function saveFcn() {
     //create the object
+    console.log("listenerType: " + listenerType);
     const listeningMap = {
         album: album,
         trackid: Number(songId),
         uri: url,
-        duration: musicService.getDuration(),
+        duration: trackItem.attributes.durationInMillis / 1000,
         performer: performer,
         title: titleInput.value,
         composer: composerInput.value,
         sections: sectionsArr,
         comments: commentArr,
-        keys: keyArr
+        keys: keyArr,
+        type: listenerType
     };
     console.log(listeningMap);
     //if dbID is still undefined then we have yet to save once. 

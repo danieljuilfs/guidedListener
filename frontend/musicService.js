@@ -13,7 +13,7 @@ export function initMusicKit(developerToken, updateButton, updateTrack, type) {
             try {
                 await MusicKit.configure({
                     developerToken,
-                    app: { name: 'Radford Guided Listening',
+                    app: { name: 'Radford Listening Map',
                         build: '0.01'
                     },
                 });

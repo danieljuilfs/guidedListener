@@ -27,8 +27,24 @@ router.get("/:id", async(req, res) => {
 
 router.post("/", async(req,res) => {
     const body: ListeningMap = req.body; 
-    console.log("POST / received");
-    console.log("Request body:", req.body);
+    //console.log("POST / received");
+    //console.log("Request body:", req.body);
+
+    console.log({
+    bodyType: typeof body,
+    bodyIsNull: body === null,
+    title: typeof body.title,
+    composer: typeof body.composer,
+    album: typeof body.album,
+    performer: typeof body.performer,
+    trackid: typeof body.trackid,
+    uri: typeof body.uri,
+    duration: typeof body.duration,
+    type: typeof body.type,
+    sectionsIsArray: Array.isArray(body.sections),
+    commentsIsArray: Array.isArray(body.comments),
+    keysIsArray: Array.isArray(body.keys)
+});
     if (
         typeof body !== "object" ||
         body === null ||
@@ -48,7 +64,9 @@ router.post("/", async(req,res) => {
             error: "Invalid listening map"
         });
     }
+    console.log("BEFORE AWAIT"); 
     let id = await dbAccess.create(body); 
+    console.log("ID IS: " + id); 
     return id; 
 })
 

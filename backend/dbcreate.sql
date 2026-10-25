@@ -23,6 +23,7 @@ CREATE TABLE sections (
     sectionnumber int NOT NULL,
     PRIMARY KEY (mapid, sectionnumber),
     sectionname varchar(200) NOT NULL,
+    measure varchar(10), 
     starttime INT NOT NULL,
     endtime INT NOT NULL,
     notes VARCHAR(2000), 

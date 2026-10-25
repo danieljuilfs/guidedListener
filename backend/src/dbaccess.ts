@@ -69,13 +69,13 @@ export async function read(id : number): Promise<Object | null> {
 
 export async function create(listen: ListeningMap): Promise<number> {
     const connection = await pool.getConnection();
-
     try {
         await connection.beginTransaction();
 
         const result = await connection.query(
-            "INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration, type) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO listeningMaps (album, title, composer, performer, trackid, uri, duration, listenerType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
+                listen.album, 
                 listen.title,
                 listen.composer,
                 listen.performer,
@@ -86,7 +86,9 @@ export async function create(listen: ListeningMap): Promise<number> {
             ]
         );
 
-        const id = result[0].insertId;
+        console.log("result is: " + Number(result.insertId)); 
+
+        const id = result.insertId;
 
         const sectionArr: section[] = listen.sections;
         const commentArr: comment[] = listen.comments;
