@@ -1,5 +1,4 @@
 export interface ListeningMap {
-    pk: number;
     title: string;
     composer: string;
     album: string;

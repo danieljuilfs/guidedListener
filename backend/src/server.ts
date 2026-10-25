@@ -27,6 +27,7 @@ app.get("/", (_req, res) => {
 
 app.use("/annotations", routes)
 
+
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });

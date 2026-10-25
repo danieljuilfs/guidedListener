@@ -983,19 +983,19 @@ async function saveFcn(): Promise<void> {
 
   //create the object
   const listeningMap = {
-
-
     album: album,
-    trackid: songId, 
+    trackid: Number(songId), 
     uri: url,  
     duration: musicService.getDuration(),
     performer: performer,
-    songId: songId,
     title: titleInput.value,
     composer: composerInput.value,
     sections: sectionsArr,
     comments: commentArr,
-    keys: keyArr
+    keys: keyArr,
+    type: listenerType
+
+    
   }
 
   console.log(listeningMap); 
@@ -1003,7 +1003,7 @@ async function saveFcn(): Promise<void> {
 
   //if dbID is still undefined then we have yet to save once. 
   if (dbID === undefined) {
-    const response = await fetch("http://localhost:3001/annotations", {
+    const response = await fetch("http://localhost:3001/annotations/", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
@@ -1012,5 +1012,6 @@ async function saveFcn(): Promise<void> {
   });
     const data = await response.json();
     dbID = data.id; 
+    console.log(dbID); 
   } 
 }

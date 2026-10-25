@@ -1,7 +1,7 @@
 import mariaDB, {} from "mariaDB";
 import dotenv from "dotenv";
 dotenv.config();
-//have to validate that the environmental variables exist, or type script will error. so confirm they exist, if they don't throw an error. 
+//have to validate that the environmental variables exist, or typescript will error. so confirm they exist, if they don't throw an error it works. if they do, output the error. 
 function requireEnv(name) {
     const value = process.env[name];
     if (!value) {

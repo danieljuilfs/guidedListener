@@ -26,20 +26,20 @@ interface key {
 }
 
 export interface ListeningMap {
-  pk: number, 
-  title: string; 
-  composer: string; 
   album: string; 
-  performer: string;
   trackid: number; 
   uri: string; 
   duration: number; 
+  performer: string;
+  title: string; 
+  composer: string; 
   sections: section[]; 
   comments: comment[];
   keys: key[]; 
+  type: string; 
   }
 
-let conn: PoolConnection| undefined; 
+let conn: PoolConnection | undefined; 
 
 //function to access data from the database. 
 export async function read(id : number): Promise<Object | null> {
@@ -67,18 +67,98 @@ export async function read(id : number): Promise<Object | null> {
 
 }
 
-export async function create(listen: ListeningMap) {
-    
-    const result = await conn?.query("INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration) VALUES (?, ?, ?, ?, ?, ?)", [
-        listen.title, 
-        listen.composer, 
-        listen.performer, 
-        listen.trackid, 
-        listen.uri, 
-        listen.duration
-    ]) 
+export async function create(listen: ListeningMap): Promise<number> {
+    const connection = await pool.getConnection();
 
-    const id = result.insertId; 
+    try {
+        await connection.beginTransaction();
 
-    console.log(id); 
+        const result = await connection.query(
+            "INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration, type) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                listen.title,
+                listen.composer,
+                listen.performer,
+                listen.trackid,
+                listen.uri,
+                listen.duration,
+                listen.type
+            ]
+        );
+
+        const id = result[0].insertId;
+
+        const sectionArr: section[] = listen.sections;
+        const commentArr: comment[] = listen.comments;
+        const keysArr: key[] = listen.keys;
+
+        for (const sectionObj of sectionArr) {
+            let secNotes: string | undefined = sectionObj.notes; 
+            let secTrans: string | undefined = sectionObj.translation; 
+
+            //handling processing the default text. 
+            if (secNotes === "Add Section Commentary") secNotes = "";  
+            if (secTrans === "Add Translation") secTrans = ""; 
+            
+            await connection.query(
+                "INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, notes) VALUES (?, ?, ?, ?, ?, ?)",
+                [
+                    
+                    sectionObj.sectionNumber,
+                    id,
+                    sectionObj.measure,
+                    sectionObj.sectionName,
+                    sectionObj.startTime,
+                    secNotes
+                ]
+            );
+        }
+
+
+        for (const commentObj of commentArr) {
+            let comNotes: string | undefined = commentObj.notes; 
+            let comLyrics: string | undefined = commentObj.lyrics
+            let comTranslation: string | undefined = commentObj.translation; 
+
+            if (comNotes === "Add Commentary") comNotes = ""; 
+            if (comLyrics === "Add Lyrics") comLyrics = ""; 
+            if (comTranslation == "Add Translation") comTranslation = ""; 
+
+            await connection.query("INSERT INTO COMMENTS (commentnumber, mapid, startTime, lyrics, translation, notes) VALUES (?, ?, ?, ?, ?, ?)",
+                [
+                    commentObj.commentNumber,
+                    id,
+                    commentObj.startTime,
+                    comLyrics,
+                    comTranslation,
+                    comNotes
+                ]
+            )
+        }
+
+        for (const keyObj of keysArr) {
+            let keyText: string | undefined = keyObj.text
+            if (keyObj.text === "key") keyText = "",
+            await connection.query("INSERT INTO KEYS (keynumber, mapid, startTIme, keyText) VALUES (?, ?, ? ,?)", 
+                [
+                    keyObj.keyNumber,
+                    id,
+                    keyObj.startTime,
+                    keyText
+                ])
+        }
+
+        await connection.commit();
+
+        console.log(id);
+        return id;
+
+    } catch (error) {
+        await connection.rollback();
+        console.error("Error creating listening map:", error);
+        throw error;
+
+    } finally {
+        connection.release();
+    }
 }
