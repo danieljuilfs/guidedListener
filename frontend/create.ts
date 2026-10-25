@@ -1002,7 +1002,7 @@ async function saveFcn(): Promise<void> {
 
 
   //if dbID is still undefined then we have yet to save once. 
-  /*if (dbID === undefined) {
+  if (dbID === undefined) {
     const response = await fetch("http://localhost:3001/annotations", {
     method: "POST",
     headers: {
@@ -1012,5 +1012,5 @@ async function saveFcn(): Promise<void> {
   });
     const data = await response.json();
     dbID = data.id; 
-  } */
+  } 
 }

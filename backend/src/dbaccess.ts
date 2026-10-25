@@ -25,7 +25,7 @@ interface key {
   text: string
 }
 
-interface listeningMap {
+export interface ListeningMap {
   pk: number, 
   title: string; 
   composer: string; 
@@ -35,6 +35,8 @@ interface listeningMap {
   uri: string; 
   duration: number; 
   sections: section[]; 
+  comments: comment[];
+  keys: key[]; 
   }
 
 let conn: PoolConnection| undefined; 
@@ -65,15 +67,18 @@ export async function read(id : number): Promise<Object | null> {
 
 }
 
-export async function create(listen: listeningMap) {
+export async function create(listen: ListeningMap) {
     
-    const createListeningMap = conn?.query("INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration) VALUES (?, ?, ?, ?, ?, ?)", [
+    const result = await conn?.query("INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration) VALUES (?, ?, ?, ?, ?, ?)", [
         listen.title, 
         listen.composer, 
         listen.performer, 
         listen.trackid, 
         listen.uri, 
         listen.duration
-    ]
-) 
+    ]) 
+
+    const id = result.insertId; 
+
+    console.log(id); 
 }

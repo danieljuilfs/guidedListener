@@ -1,5 +1,6 @@
 import { Router } from "express"; 
 import * as dbAccess from "./dbaccess.js"
+import type { ListeningMap } from "./dbaccess.js";
 
 //create a router to route API calls
 const router = Router(); 
@@ -23,5 +24,29 @@ router.get("/:id", async(req, res) => {
 
     res.json(json); 
 }); 
+
+router.post("/", async(req,res) => {
+    const body: ListeningMap = req.body; 
+
+    if (
+        typeof body !== "object" ||
+        body === null ||
+        typeof body.pk !== "number" ||
+        typeof body.title !== "string" ||
+        typeof body.composer !== "string" ||
+        typeof body.album !== "string" ||
+        typeof body.performer !== "string" ||
+        typeof body.trackid !== "number" ||
+        typeof body.uri !== "string" ||
+        typeof body.duration !== "number" ||
+        !Array.isArray(body.sections) ||
+        !Array.isArray(body.comments) ||
+        !Array.isArray(body.keys)
+    ) {
+        return res.status(400).json({
+            error: "Invalid listening map"
+        });
+    }
+})
 
 export default router; 
