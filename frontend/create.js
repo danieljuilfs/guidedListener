@@ -728,16 +728,16 @@ async function saveFcn() {
     };
     console.log(listeningMap);
     //if dbID is still undefined then we have yet to save once. 
-    /*if (dbID === undefined) {
-      const response = await fetch("http://localhost:3001/annotations", {
-      method: "POST",
-      headers: {
-          "Content-Type": "application/json"
-      },
-      body: JSON.stringify(listeningMap)
-    });
-      const data = await response.json();
-      dbID = data.id;
-    } */
+    if (dbID === undefined) {
+        const response = await fetch("http://localhost:3001/annotations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(listeningMap)
+        });
+        const data = await response.json();
+        dbID = data.id;
+    }
 }
 //# sourceMappingURL=create.js.map
