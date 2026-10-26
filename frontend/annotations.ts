@@ -15,7 +15,7 @@ export interface ListeningMap {
 
 export interface comment {
   commentNumber: number,
-  startTime: number, 
+  starttime: number, 
   lyrics?: string,
   translation?: string,
   notes?: string
@@ -23,16 +23,16 @@ export interface comment {
 
 export interface key {
   keyNumber: number,
-  startTime: number,
+  starttime: number,
   text: string
 }
 
 export interface section {
-  sectionNumber: number,
+  sectionnumber: number,
   measure: string,  
-  sectionName: string;
-  startTime: number; 
-  endTime: number; 
+  sectionname: string;
+  starttime: number; 
+  endtime: number; 
   lyrics?: string; 
   translation?:  string; 
   notes?: string; 
@@ -50,6 +50,8 @@ export function createAnnotations(request: ListeningMap) {
 
   annotations = request; 
 
+  console.log("Annotations: ", annotations); 
+
   //holds the column titles for the sections
   const columns: string[] = []; 
 
@@ -60,17 +62,17 @@ export function createAnnotations(request: ListeningMap) {
     //create the div, append it to the dom, set its text
     let newDiv: HTMLDivElement = document.createElement("div"); 
     sectionDiv.append(newDiv); 
-    newDiv.textContent = curSection.sectionName; 
+    newDiv.textContent = curSection.sectionname; 
 
     //calculate how long each section is, and then add it to the array for doing output. 
-    const duration: number = curSection.endTime - curSection.startTime;
+    const duration: number = curSection.endtime - curSection.starttime;
     columns.push(`${duration}fr`); 
 
     //if the note isn't null, push it to the array, otherwise push an empty string. 
     notes.push( curSection.notes != null ? curSection.notes : " "); 
 
     //push the end times. 
-    ends.push(curSection.endTime); 
+    ends.push(curSection.endtime); 
   }
 
   //set the width based on the size of each container

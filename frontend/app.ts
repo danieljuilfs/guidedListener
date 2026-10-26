@@ -16,7 +16,7 @@ if (!jwt) {
 }
 
 //form the address to call
-let id: string = "1"; 
+let id: string = window.location.pathname.slice(1);
 
 const toFetch: string = address + "/annotations/" + id; 
 
@@ -33,6 +33,9 @@ const json: ListeningMap = await response.json();
 
 //apple music expects the trackid as a string funnily enough. 
 const songId: string = String(json.trackid); 
+
+
+console.log("json: " + json);
 
 //create the annotations
 createAnnotations(json); 

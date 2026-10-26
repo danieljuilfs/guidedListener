@@ -13,22 +13,22 @@ export interface ListeningMap {
 }
 export interface comment {
     commentNumber: number;
-    startTime: number;
+    starttime: number;
     lyrics?: string;
     translation?: string;
     notes?: string;
 }
 export interface key {
     keyNumber: number;
-    startTime: number;
+    starttime: number;
     text: string;
 }
 export interface section {
-    sectionNumber: number;
+    sectionnumber: number;
     measure: string;
-    sectionName: string;
-    startTime: number;
-    endTime: number;
+    sectionname: string;
+    starttime: number;
+    endtime: number;
     lyrics?: string;
     translation?: string;
     notes?: string;

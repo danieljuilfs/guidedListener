@@ -11,7 +11,7 @@ if (!jwt) {
     throw new Error("JWT is missing");
 }
 //form the address to call
-let id = "1";
+let id = window.location.pathname.slice(1);
 const toFetch = address + "/annotations/" + id;
 console.log(toFetch);
 const response = await fetch(toFetch);
@@ -22,6 +22,7 @@ if (!response.ok) {
 const json = await response.json();
 //apple music expects the trackid as a string funnily enough. 
 const songId = String(json.trackid);
+console.log("json: " + json);
 //create the annotations
 createAnnotations(json);
 //initialize the track information. 

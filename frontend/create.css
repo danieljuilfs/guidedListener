@@ -87,7 +87,7 @@ legend {
 
 
 #address {
-    margin-left: 1vw; 
+    margin-right: 1vw; 
     min-width: 0;
     border: 1px solid black;
     overflow: hidden;
@@ -151,7 +151,7 @@ legend {
 
 #interaction {
     display: grid;
-    grid-template-columns: 57.25vw minmax(0, 1fr);
+    grid-template-columns: calc(57.25vw + 1.5vw + 36px) minmax(0, 1fr);
     gap: 1vw;
     align-items: end;
 }
@@ -171,7 +171,7 @@ legend {
 
 #topButtons {
     display: grid;
-    grid-template-columns: 1fr auto minmax(0, 1fr);
+    grid-template-columns: 1fr auto; 
     align-items: end;
     box-sizing: border-box;
     font-size: 1.25rem;

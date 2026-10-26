@@ -2,27 +2,27 @@ import type { PoolConnection } from "mariaDB";
 import { pool } from "./connection.js"; 
 
 interface section {
-  sectionNumber: number,
+  sectionnumber: number,
   measure: string,  
-  sectionName: string;
-  startTime: number; 
-  endTime: number; 
+  sectionname: string;
+  starttime: number; 
+  endtime: number; 
   lyrics?: string | undefined; 
   translation?:  string | undefined;  
   notes?: string | undefined; 
 }
 
 interface comment {
-  commentNumber: number,
-  startTime: number, 
+  commentnumber: number,
+  starttime: number, 
   lyrics?: string | undefined,
   translation?: string | undefined,
   notes?: string | undefined
 }
 
 interface key {
-  keyNumber: number,
-  startTime: number,
+  keynumber: number,
+  starttime: number,
   text: string
 }
 
@@ -45,15 +45,23 @@ let conn: PoolConnection | undefined;
 //function to access data from the database. 
 export async function read(id : number): Promise<Object | null> {
     let rows; 
-    let rows2; 
+    let sectionsArr; 
+    let keysArr;
+    let commentsArr; 
+
     try{
         conn = await pool.getConnection();
         const sql = `SELECT * FROM listeningmaps where pk = ?`
         rows = await conn.query(sql, id); 
 
         const sql2 = `SELECT * FROM SECTIONS WHERE mapid = ?`
-        rows2 = await conn.query(sql2, id); 
+        sectionsArr = await conn.query(sql2, id); 
 
+        const sql3 = `Select * FROM mkeys where mapid = ?`
+        keysArr = await conn.query(sql3, id);
+
+        const sql4 = `Select * from comments where mapid = ?`
+        commentsArr = await conn.query(sql4, id); 
         
     } catch (err) {
         console.error("Failed to connect to the database:", err);
@@ -64,7 +72,7 @@ export async function read(id : number): Promise<Object | null> {
      if (rows.length == 0) return null; 
 
     //construct the json object and return it to the API. 
-    return {...rows[0], sections: rows2}
+    return {...rows[0], sections: sectionsArr, comments: commentsArr, keys: keysArr} as ListeningMap; 
 
 }
 
@@ -104,15 +112,15 @@ export async function create(listen: ListeningMap): Promise<number> {
             if (secTrans === "Add Translation") secTrans = ""; 
             
             await connection.query(
-                "INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, endTime, notes) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionname, starttime, endtime, notes) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
                     
-                    sectionObj.sectionNumber,
+                    sectionObj.sectionnumber,
                     id,
                     sectionObj.measure,
-                    sectionObj.sectionName,
-                    sectionObj.startTime,
-                    sectionObj.endTime,
+                    sectionObj.sectionname,
+                    sectionObj.starttime,
+                    sectionObj.endtime,
                     secNotes
                 ]
             );
@@ -130,9 +138,9 @@ export async function create(listen: ListeningMap): Promise<number> {
 
             await connection.query("INSERT INTO COMMENTS (commentnumber, mapid, startTime, lyrics, translation, notes) VALUES (?, ?, ?, ?, ?, ?)",
                 [
-                    commentObj.commentNumber,
+                    commentObj.commentnumber,
                     id,
-                    commentObj.startTime,
+                    commentObj.starttime,
                     comLyrics,
                     comTranslation,
                     comNotes
@@ -145,9 +153,9 @@ export async function create(listen: ListeningMap): Promise<number> {
             if (keyObj.text === "key") keyText = "",
             await connection.query("INSERT INTO mkeys (keynumber, mapid, startTIme, keyText) VALUES (?, ?, ? ,?)", 
                 [
-                    keyObj.keyNumber,
+                    keyObj.keynumber,
                     id,
-                    keyObj.startTime,
+                    keyObj.starttime,
                     keyText
                 ])
         }
@@ -202,12 +210,12 @@ export async function update(id: number, listen: ListeningMap): Promise<number> 
             await conn.query(
                 "INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, endTime, notes) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
-                    section.sectionNumber,
+                    section.sectionnumber,
                     id,
                     section.measure ?? null,
-                    section.sectionName,
-                    section.startTime,
-                    section.endTime,
+                    section.sectionname,
+                    section.starttime,
+                    section.endtime,
                     section.notes ?? null
                 ]
             );
@@ -218,9 +226,9 @@ export async function update(id: number, listen: ListeningMap): Promise<number> 
             await conn.query(
                 `INSERT INTO COMMENTS (commentNumber, mapid, startTime, lyrics, translation, notes) VALUES (?, ?, ?, ?, ?, ?)`,
                 [
-                    comment.commentNumber,
+                    comment.commentnumber,
                     id,
-                    comment.startTime,
+                    comment.starttime,
                     comment.lyrics ?? null,
                     comment.translation ?? null,
                     comment.notes ?? null
@@ -233,8 +241,8 @@ export async function update(id: number, listen: ListeningMap): Promise<number> 
                 `INSERT INTO mkeys (mapid, keyNumber, startTime, keyText) VALUES (?, ?, ?, ?)`,
                 [
                     id,
-                    key.keyNumber,
-                    key.startTime,
+                    key.keynumber,
+                    key.starttime,
                     key.text
                 ]
             );

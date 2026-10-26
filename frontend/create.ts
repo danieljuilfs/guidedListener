@@ -195,11 +195,9 @@ async function displayTrack() {
 
     //set the performer for use in saving
     performer = trackItem.attributes.artistName; 
-    console.log(performer); 
 
     //set the album for use in saving
     album = trackItem.attributes.albumName; 
-    console.log("albumName:" + album); 
 
     //get the duration, divide by 1000, send to the formatter. 
     durationDiv.textContent = formatTime((trackItem.attributes.durationInMillis/1000)); 
@@ -262,7 +260,7 @@ function createSection(): void {
   if (sectionsArr.length > 0 ) {
     sectionIndex = findSectionIndex(currentTime);
   
-    if (sectionIndex === 0 && sectionsArr[0]) sectionsArr[0].endTime = currentTime; 
+    if (sectionIndex === 0 && sectionsArr[0]) sectionsArr[0].endtime = currentTime; 
   } 
   else {
   //handling the fact that currentTime will be NaN at the start. 
@@ -278,11 +276,11 @@ function createSection(): void {
 
   //define the object. 
   const newSection: section = {
-    sectionNumber: id, 
+    sectionnumber: id, 
     measure: "m. #", 
-    sectionName: "Section Label",
-    startTime: currentTime, 
-    endTime: getEndTime(id),
+    sectionname: "Section Label",
+    starttime: currentTime, 
+    endtime: getEndTime(id),
     lyrics: "Add Lyrics", 
     translation:  "Add Translation", 
     notes: "Add Section Commentary",
@@ -298,7 +296,7 @@ function createSection(): void {
   sectionContainer.addEventListener("click", () => onFocus(sectionContainer, "section")); 
 
   //store the id of the div in the div so we can reference it for deletion. 
-  sectionContainer.dataset.sectionId = String(newSection.sectionNumber); 
+  sectionContainer.dataset.sectionId = String(newSection.sectionnumber); 
 
   //add the section class to it. 
   sectionContainer.classList.add("section")
@@ -334,13 +332,13 @@ function createSection(): void {
   sectionTitle.contentEditable = "true"; 
 
   //set its text
-  sectionTitle.textContent = String(newSection.sectionName);
+  sectionTitle.textContent = String(newSection.sectionname);
 
   //add the class to the section title
   sectionTitle.classList.add("sectionTitle")
 
   sectionTitle.addEventListener("input", () => {
-    newSection.sectionName = sectionTitle.textContent ?? "Section Label"; 
+    newSection.sectionname = sectionTitle.textContent ?? "Section Label"; 
   })
 
   //create container to hold the comments
@@ -375,7 +373,7 @@ function createComment(): void {
   }
 
   //make sure that the comment is not being created at the start of a section.
-  const badStart: section | undefined = sectionsArr.find(section => section.startTime === currentTime)
+  const badStart: section | undefined = sectionsArr.find(section => section.starttime === currentTime)
 
   if (badStart) {
     alert("Cannot add a comment at the starting point of a section");
@@ -400,7 +398,7 @@ function createComment(): void {
   //create the comment
   const newComment: comment = {
     commentNumber: commentId,
-    startTime: currentTime, 
+    starttime: currentTime, 
     lyrics: "Add Lyrics",
     translation: "Add Translation",
     notes: "Add Commentary"
@@ -436,7 +434,7 @@ function createKey(): void {
   }
 
   let keyDist: boolean = checkKeyDistance(currentTime); 
-  console.log("keyDist:" + keyDist)
+
   if (keyDist) {
     alert("Cannot have two keys that close to each other!");
     return;  
@@ -445,7 +443,7 @@ function createKey(): void {
   //create the key
   const newKey: key = {
     keyNumber: keyId,
-    startTime: currentTime, 
+    starttime: currentTime, 
     text: "key"
   }
   
@@ -472,7 +470,7 @@ function getEndTime(index: number): number {
   let time = 0; 
   //if that section exists, its start time is our current divs end time.
   if (nextSection) {
-    time = nextSection.startTime; 
+    time = nextSection.starttime; 
   }
   else time = trackItem.attributes.durationInMillis/1000;
 
@@ -483,7 +481,7 @@ function getEndTime(index: number): number {
 function calcWidth(index: number): number  {
 
   //get the current playback time
-  let startTime = sectionsArr[index]?.startTime; 
+  let startTime = sectionsArr[index]?.starttime; 
 
   if (!startTime) {
     startTime = 0; 
@@ -529,13 +527,13 @@ function drawDivs() {
   sectionParent.replaceChildren(); 
 
   //sort the comments array to speed up access when we go to add them to the div containers. 
-  commentArr.sort((a, b) => a.startTime - b.startTime ); 
+  commentArr.sort((a, b) => a.starttime - b.starttime ); 
 
   //iterate over the sections, grab the divs in order, and add them to the dom by id
   sectionsArr.forEach((sec: section, index: number) => {
     //the sections div should be in order, because everything is just sliced in via insertion. 
     //needs the section number, because divs are stored in the map based on their section number. 
-    const toAdd: HTMLDivElement | undefined = divMap.get(sec.sectionNumber);
+    const toAdd: HTMLDivElement | undefined = divMap.get(sec.sectionnumber);
 
     //calc width needs the ARRAY INDEX, because it needs to calc relative sizes. 
     const divWidth = calcWidth(index);  
@@ -568,7 +566,7 @@ function drawDivs() {
   })
 
   //sort the key array 
-  keyArr.sort((a, b) => a.startTime - b.startTime ); 
+  keyArr.sort((a, b) => a.starttime - b.starttime ); 
 
   //get the containers width
   const keyContainer: HTMLDivElement = document.getElementById("keyBar") as HTMLDivElement;
@@ -580,7 +578,7 @@ function drawDivs() {
       //get key, get its time, use that time to determine where it belongs on the page. create the div with the information in it, set its left to wherever it needs to align. 
       
       //get the key time
-      const time: number = key.startTime; 
+      const time: number = key.starttime; 
 
       const length: number = musicService.getDuration(); 
 
@@ -666,12 +664,12 @@ function deleteDiv(type: string) {
     divMap.delete(id)
     //iterate over the array, find the section with the section number which is equal to the id. 
     const index = sectionsArr.findIndex(
-      section => section.sectionNumber === id
+      section => section.sectionnumber === id
     );
     
     //have to handle deletion of the first section, by updating the start time of the second section. 
     if (index === 0 ) {
-      if (sectionsArr[1]) sectionsArr[1].startTime = 0; 
+      if (sectionsArr[1]) sectionsArr[1].starttime = 0; 
     }
     if (index !== -1) {
       sectionsArr.splice(index, 1); 
@@ -743,7 +741,7 @@ function onFocus(div: HTMLDivElement | undefined, type: string): void {
   if (type === "section") {
     //iterate over the array, find the section with the section number which is equal to the id. 
     const section = sectionsArr.find(
-      section => section.sectionNumber === Number(selectedDiv?.dataset.sectionId) 
+      section => section.sectionnumber === Number(selectedDiv?.dataset.sectionId) 
     );
 
     //set the section as the selected. 
@@ -817,8 +815,8 @@ function findSectionIndex(currentTime: number): number{
     return (
       /*return whether the current time is greater than the startTime of the current section, and theres either not a next section, or the next sections startTime is less than the current time, 
       return true. If it is, we have found the index of the section. */
-        currentTime >= section.startTime &&
-        (!nextSection || currentTime < nextSection.startTime)
+        currentTime >= section.starttime &&
+        (!nextSection || currentTime < nextSection.starttime)
     );
   });
     return sectionIndex; 
@@ -838,7 +836,7 @@ function checkDuplicates(currentTime: number, type: string): boolean {
   }
 
   for (const part of arr) {
-    if (currentTime === part.startTime) return true; 
+    if (currentTime === part.starttime) return true; 
   }
 
   return false; 
@@ -851,18 +849,18 @@ function addComments(index: number): HTMLDivElement[] {
   let curTime: number;  
 
   //if the section exists, get its current time.
-  if (sectionsArr[index]) curTime = sectionsArr[index].startTime; 
+  if (sectionsArr[index]) curTime = sectionsArr[index].starttime; 
 
   //have to increment the index here or typescript gets unhappy.
   const nextIndex = index+1; 
 
   //set the final duration to the end, and if there is a value in the section array, use that instead. 
   let nextTime: number = musicService.getDuration(); 
-  if (sectionsArr[nextIndex]) nextTime = sectionsArr[nextIndex].startTime; 
+  if (sectionsArr[nextIndex]) nextTime = sectionsArr[nextIndex].starttime; 
 
   //if the comments start time is greater than or equal to the current time, and less than the next time, it belongs in this sections array. 
   commentArr.forEach((comment: comment) => {
-    if (comment.startTime >= curTime && comment.startTime < nextTime ) {
+    if (comment.starttime >= curTime && comment.starttime < nextTime ) {
 
       //add the div to the section. 
       const newComment: HTMLDivElement = document.createElement("div"); 
@@ -881,7 +879,7 @@ function addComments(index: number): HTMLDivElement[] {
       const trackLength: number = nextTime - curTime; 
 
       //adjust the time to account for the length of the section rather than the whole song
-      const adjustedTime: number = comment.startTime - curTime; 
+      const adjustedTime: number = comment.starttime - curTime; 
 
       //get the position of the track
       const position: number = (adjustedTime / trackLength) * 100;
@@ -925,7 +923,7 @@ function checkCommentDistance(currentTime: number): boolean {
 
     //iterate over the comment arr, compare the difference between the current time and the comments time, if its too small, return true
      commentArr.forEach((comment: comment) => {
-        if (Math.abs(currentTime - comment.startTime) < secondsPerTen)
+        if (Math.abs(currentTime - comment.starttime) < secondsPerTen)
           commentDistance = true; 
       }
     )
@@ -955,7 +953,7 @@ function checkKeyDistance(currentTime: number): boolean {
 
     //iterate over the key arr, compare the difference between the current time and the comments time, if its too small, return true
      keyArr.forEach((key: key) => {
-        if (Math.abs(currentTime - key.startTime) < secondsPerTen)
+        if (Math.abs(currentTime - key.starttime) < secondsPerTen)
           keyDistance = true; 
       }
     )
@@ -966,7 +964,6 @@ function checkKeyDistance(currentTime: number): boolean {
 async function saveFcn(): Promise<void> {
 
   //create the object
-  console.log("listenerType: " + listenerType); 
 
 
   const listeningMap: ListeningMap = {
@@ -998,16 +995,14 @@ async function saveFcn(): Promise<void> {
 
     //this ensures that we don't just copy one reference between the variables, instead getting a new copy of the data. 
     savedListener = structuredClone(listeningMap); 
-    console.log("DATA ID IS: " + data.id); 
     dbID = data.id; 
-    console.log(dbID); 
+
+    const address: HTMLInputElement = document.getElementById("address") as HTMLInputElement
+    console.log("addres: " + `${window.location.origin}/${dbID}`);
+    address.value = `${window.location.origin}/${dbID}`;
   } 
   else {
-    console.log("befire comparison")
-    console.log("new map: " + JSON.stringify(listeningMap))
-    console.log("OLD MAP: " + JSON.stringify(savedListener));
     if (JSON.stringify(listeningMap) !== JSON.stringify(savedListener)) {
-      console.log("inside comparison")
       const response = await fetch(`http://localhost:3001/annotations/${dbID}`, {
       method: "PUT",
       headers: {
