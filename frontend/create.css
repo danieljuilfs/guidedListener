@@ -85,6 +85,16 @@ legend {
     grid-template-rows: 1fr; 
 }
 
+
+#address {
+    margin-left: 1vw; 
+    min-width: 0;
+    border: 1px solid black;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 #composer {
     margin-bottom: 1vh; 
 }
@@ -139,6 +149,13 @@ legend {
     padding-top: 3vh; 
 }
 
+#interaction {
+    display: grid;
+    grid-template-columns: 57.25vw minmax(0, 1fr);
+    gap: 1vw;
+    align-items: end;
+}
+
 #keyBar {
     margin: .5vh 1vw 0 calc(1.5vw + 36px); 
     height: 5%; 
@@ -154,8 +171,7 @@ legend {
 
 #topButtons {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 1vw;
+    grid-template-columns: 1fr auto minmax(0, 1fr);
     align-items: end;
     box-sizing: border-box;
     font-size: 1.25rem;

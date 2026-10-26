@@ -40,31 +40,6 @@ export interface ListeningMap {
   listenerType: string; 
   }
 
-  interface sectionRow {
-    sectionnumber: number;
-    measure: string | undefined;
-    sectionname: string;
-    starttime: number | string;
-    endtime: number | string;
-    lyrics: string | undefined;
-    translation: string | undefined;
-    notes: string | undefined ;
-}
-
-interface commentRow {
-    commentNumber: number;
-    startTime: number | string;
-    lyrics: string | undefined;
-    translation: string | undefined;
-    notes: string | undefined;
-}
-
-interface keyRow {
-    keyNumber: number;
-    startTime: number | string;
-    keyText: string;
-}
-
 let conn: PoolConnection | undefined; 
 
 //function to access data from the database. 
@@ -225,19 +200,14 @@ export async function update(id: number, listen: ListeningMap): Promise<number> 
         // Insert sections
         for (const section of listen.sections) {
             await conn.query(
-                `INSERT INTO sections
-                 (mapid, sectionnumber, sectionname, measure, starttime,
-                  endtime, lyrics, translation, notes)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                "INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, endTime, notes) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
-                    id,
                     section.sectionNumber,
-                    section.sectionName,
+                    id,
                     section.measure ?? null,
+                    section.sectionName,
                     section.startTime,
                     section.endTime,
-                    section.lyrics ?? null,
-                    section.translation ?? null,
                     section.notes ?? null
                 ]
             );
@@ -246,12 +216,10 @@ export async function update(id: number, listen: ListeningMap): Promise<number> 
         // Insert comments
         for (const comment of listen.comments) {
             await conn.query(
-                `INSERT INTO comments
-                 (mapid, commentNumber, startTime, lyrics, translation, notes)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO COMMENTS (commentNumber, mapid, startTime, lyrics, translation, notes) VALUES (?, ?, ?, ?, ?, ?)`,
                 [
-                    id,
                     comment.commentNumber,
+                    id,
                     comment.startTime,
                     comment.lyrics ?? null,
                     comment.translation ?? null,
@@ -262,8 +230,7 @@ export async function update(id: number, listen: ListeningMap): Promise<number> 
 
         for (const key of listen.keys) {
             await conn.query(
-                `INSERT INTO mkeys (mapid, keyNumber, startTime, keyText)
-                 VALUES (?, ?, ?, ?)`,
+                `INSERT INTO mkeys (mapid, keyNumber, startTime, keyText) VALUES (?, ?, ?, ?)`,
                 [
                     id,
                     key.keyNumber,

@@ -742,7 +742,8 @@ async function saveFcn() {
             body: JSON.stringify(listeningMap)
         });
         const data = await response.json();
-        savedListener = listeningMap;
+        //this ensures that we don't just copy one reference between the variables, instead getting a new copy of the data. 
+        savedListener = structuredClone(listeningMap);
         console.log("DATA ID IS: " + data.id);
         dbID = data.id;
         console.log(dbID);
@@ -760,6 +761,7 @@ async function saveFcn() {
                 },
                 body: JSON.stringify(listeningMap)
             });
+            savedListener = structuredClone(listeningMap);
         }
     }
 }
