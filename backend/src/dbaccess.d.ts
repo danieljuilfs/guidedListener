@@ -3,6 +3,7 @@ interface section {
     measure: string;
     sectionName: string;
     startTime: number;
+    endTime: number;
     lyrics?: string;
     translation?: string;
     notes?: string;

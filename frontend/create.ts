@@ -2,31 +2,7 @@ import * as musicService from "./musicService.js";
 import { formatTime } from "./utils.js"; 
 import "./hoverTimer.js"; 
 import "./trackInfo.js"; 
-
-interface section {
-  sectionNumber: number,
-  measure: string,  
-  sectionName: string;
-  startTime: number; 
-  endTime: number; 
-  lyrics?: string; 
-  translation?:  string; 
-  notes?: string; 
-}
-
-interface comment {
-  commentNumber: number,
-  startTime: number, 
-  lyrics?: string,
-  translation?: string,
-  notes?: string
-}
-
-interface key {
-  keyNumber: number,
-  startTime: number,
-  text: string
-}
+import type { ListeningMap, section, comment, key } from "./annotations.js";
 
 //definitions
 
@@ -91,6 +67,8 @@ const keyMap: Map<number, HTMLDivElement> = new Map();
 let dbID: number | undefined = undefined; 
 
 let performer: string = ""; 
+
+let savedListener: ListeningMap; 
 
 //change set the editor state on page load
 updateState(); 
@@ -281,7 +259,11 @@ function createSection(): void {
 
   let sectionIndex: number = 0; 
   
-  if (sectionsArr.length > 0) sectionIndex = findSectionIndex(currentTime); 
+  if (sectionsArr.length > 0 ) {
+    sectionIndex = findSectionIndex(currentTime);
+  
+    if (sectionIndex === 0 && sectionsArr[0]) sectionsArr[0].endTime = currentTime; 
+  } 
   else {
   //handling the fact that currentTime will be NaN at the start. 
   currentTime = 0; 
@@ -987,7 +969,7 @@ async function saveFcn(): Promise<void> {
   console.log("listenerType: " + listenerType); 
 
 
-  const listeningMap = {
+  const listeningMap: ListeningMap = {
     album: album,
     trackid: Number(songId), 
     uri: url,  
@@ -998,13 +980,11 @@ async function saveFcn(): Promise<void> {
     sections: sectionsArr,
     comments: commentArr,
     keys: keyArr,
-    type: listenerType  
+    listenerType: listenerType  
   }
 
-  console.log(listeningMap); 
-
-
   //if dbID is still undefined then we have yet to save once. 
+  console.log("dbID before check:", dbID);
   if (dbID === undefined) {
     const response = await fetch("http://localhost:3001/annotations/", {
     method: "POST",
@@ -1012,9 +992,23 @@ async function saveFcn(): Promise<void> {
         "Content-Type": "application/json"
     },
     body: JSON.stringify(listeningMap)
+    
   });
     const data = await response.json();
+    savedListener = listeningMap; 
+    console.log("DATA ID IS: " + data.id); 
     dbID = data.id; 
     console.log(dbID); 
   } 
+  else {
+    if (JSON.stringify(listeningMap) !== JSON.stringify(savedListener)) {
+      const response = await fetch(`http://localhost:3001/annotations/${dbID}`, {
+      method: "PUT",
+      headers: {
+          "Content-Type": "application/json"
+      },
+      body: JSON.stringify(listeningMap)
+      });
+    }
+  }
 }

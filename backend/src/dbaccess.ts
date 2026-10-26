@@ -7,17 +7,17 @@ interface section {
   sectionName: string;
   startTime: number; 
   endTime: number; 
-  lyrics?: string; 
-  translation?:  string; 
-  notes?: string; 
+  lyrics?: string | undefined; 
+  translation?:  string | undefined;  
+  notes?: string | undefined; 
 }
 
 interface comment {
   commentNumber: number,
   startTime: number, 
-  lyrics?: string,
-  translation?: string,
-  notes?: string
+  lyrics?: string | undefined,
+  translation?: string | undefined,
+  notes?: string | undefined
 }
 
 interface key {
@@ -39,6 +39,31 @@ export interface ListeningMap {
   keys: key[]; 
   type: string; 
   }
+
+  interface sectionRow {
+    sectionnumber: number;
+    measure: string | undefined;
+    sectionname: string;
+    starttime: number | string;
+    endtime: number | string;
+    lyrics: string | undefined;
+    translation: string | undefined;
+    notes: string | undefined ;
+}
+
+interface commentRow {
+    commentNumber: number;
+    startTime: number | string;
+    lyrics: string | undefined;
+    translation: string | undefined;
+    notes: string | undefined;
+}
+
+interface keyRow {
+    keyNumber: number;
+    startTime: number | string;
+    keyText: string;
+}
 
 let conn: PoolConnection | undefined; 
 
@@ -143,7 +168,7 @@ export async function create(listen: ListeningMap): Promise<number> {
         for (const keyObj of keysArr) {
             let keyText: string | undefined = keyObj.text
             if (keyObj.text === "key") keyText = "",
-            await connection.query("INSERT INTO KEYS (keynumber, mapid, startTIme, keyText) VALUES (?, ?, ? ,?)", 
+            await connection.query("INSERT INTO mkeys (keynumber, mapid, startTIme, keyText) VALUES (?, ?, ? ,?)", 
                 [
                     keyObj.keyNumber,
                     id,
@@ -166,3 +191,95 @@ export async function create(listen: ListeningMap): Promise<number> {
         connection.release();
     }
 }
+
+export async function update(id: number, listen: ListeningMap): Promise<number> {
+    const conn = await pool.getConnection();
+
+    try {
+        await conn.beginTransaction();
+
+        // Update the parent row
+        await conn.query(
+            `UPDATE listeningmaps
+             SET album = ?, trackid = ?, uri = ?, duration = ?,
+                 performer = ?, title = ?, composer = ?, listenerType = ?
+             WHERE pk = ?`,
+            [
+                listen.album,
+                listen.trackid,
+                listen.uri,
+                listen.duration,
+                listen.performer,
+                listen.title,
+                listen.composer,
+                listen.type,
+                id
+            ]
+        );
+
+        // Delete existing child rows
+        await conn.query("DELETE FROM sections WHERE mapid = ?", [id]);
+        await conn.query("DELETE FROM comments WHERE mapid = ?", [id]);
+        await conn.query("DELETE FROM mkeys WHERE mapid = ?", [id]);
+
+        // Insert sections
+        for (const section of listen.sections) {
+            await conn.query(
+                `INSERT INTO sections
+                 (mapid, sectionnumber, sectionname, measure, starttime,
+                  endtime, lyrics, translation, notes)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    id,
+                    section.sectionNumber,
+                    section.sectionName,
+                    section.measure ?? null,
+                    section.startTime,
+                    section.endTime,
+                    section.lyrics ?? null,
+                    section.translation ?? null,
+                    section.notes ?? null
+                ]
+            );
+        }
+
+        // Insert comments
+        for (const comment of listen.comments) {
+            await conn.query(
+                `INSERT INTO comments
+                 (mapid, commentNumber, startTime, lyrics, translation, notes)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                    id,
+                    comment.commentNumber,
+                    comment.startTime,
+                    comment.lyrics ?? null,
+                    comment.translation ?? null,
+                    comment.notes ?? null
+                ]
+            );
+        }
+
+        for (const key of listen.keys) {
+            await conn.query(
+                `INSERT INTO mkeys (mapid, keyNumber, startTime, keyText)
+                 VALUES (?, ?, ?, ?)`,
+                [
+                    id,
+                    key.keyNumber,
+                    key.startTime,
+                    key.text
+                ]
+            );
+        }
+
+        await conn.commit();
+    } catch (error) {
+        await conn.rollback();
+        throw error;
+    } finally {
+        conn.release();
+    }
+    return id; 
+}
+

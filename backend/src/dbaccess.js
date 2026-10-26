@@ -26,8 +26,10 @@ export async function read(id) {
 export async function create(listen) {
     const connection = await pool.getConnection();
     try {
+        //want the entire insert to work as one transaction
         await connection.beginTransaction();
-        const result = await connection.query("INSERT INTO listeningMaps (title, composer, performer, trackid, uri, duration, listenerType) VALUES (?, ?, ?, ?, ?, ?, ?)", [
+        const result = await connection.query("INSERT INTO listeningMaps (album, title, composer, performer, trackid, uri, duration, listenerType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
+            listen.album,
             listen.title,
             listen.composer,
             listen.performer,
@@ -36,8 +38,7 @@ export async function create(listen) {
             listen.duration,
             listen.type
         ]);
-        console.log("result is: " + Number(result.insertId));
-        const id = result[0].insertId;
+        const id = result.insertId;
         const sectionArr = listen.sections;
         const commentArr = listen.comments;
         const keysArr = listen.keys;
@@ -49,12 +50,13 @@ export async function create(listen) {
                 secNotes = "";
             if (secTrans === "Add Translation")
                 secTrans = "";
-            await connection.query("INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, notes) VALUES (?, ?, ?, ?, ?, ?)", [
+            await connection.query("INSERT INTO SECTIONS (sectionnumber, mapId,  measure, sectionName, startTime, endTime, notes) VALUES (?, ?, ?, ?, ?, ?, ?)", [
                 sectionObj.sectionNumber,
                 id,
                 sectionObj.measure,
                 sectionObj.sectionName,
                 sectionObj.startTime,
+                sectionObj.endTime,
                 secNotes
             ]);
         }
@@ -81,7 +83,7 @@ export async function create(listen) {
             let keyText = keyObj.text;
             if (keyObj.text === "key")
                 keyText = "",
-                    await connection.query("INSERT INTO KEYS (keynumber, mapid, startTIme, keyText) VALUES (?, ?, ? ,?)", [
+                    await connection.query("INSERT INTO mkeys (keynumber, mapid, startTIme, keyText) VALUES (?, ?, ? ,?)", [
                         keyObj.keyNumber,
                         id,
                         keyObj.startTime,

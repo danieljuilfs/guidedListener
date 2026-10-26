@@ -115,7 +115,6 @@ export function getCurrentTime(): number {
     //when the song is completed, return the final duration. 
     if (music.playbackState === 10) return getDuration();
     
-
     else {
       //in all other cases, calculate the elapsed time and return it. 
       return ((elapsedTime * 1000 )+ (performance.now() - startTime)) / 1000; 

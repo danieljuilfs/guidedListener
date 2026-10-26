@@ -188,8 +188,11 @@ function createSection() {
         return;
     }
     let sectionIndex = 0;
-    if (sectionsArr.length > 0)
+    if (sectionsArr.length > 0) {
         sectionIndex = findSectionIndex(currentTime);
+        if (sectionIndex === 0 && sectionsArr[0])
+            sectionsArr[0].endTime = currentTime;
+    }
     else {
         //handling the fact that currentTime will be NaN at the start. 
         currentTime = 0;
@@ -730,6 +733,7 @@ async function saveFcn() {
     };
     console.log(listeningMap);
     //if dbID is still undefined then we have yet to save once. 
+    console.log("dbID before check:", dbID);
     if (dbID === undefined) {
         const response = await fetch("http://localhost:3001/annotations/", {
             method: "POST",
@@ -739,6 +743,7 @@ async function saveFcn() {
             body: JSON.stringify(listeningMap)
         });
         const data = await response.json();
+        console.log("DATA ID IS: " + data.id);
         dbID = data.id;
         console.log(dbID);
     }
