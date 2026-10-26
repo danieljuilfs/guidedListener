@@ -36,6 +36,7 @@ const commentMap = new Map();
 const keyMap = new Map();
 let dbID = undefined;
 let performer = "";
+let savedListener;
 //change set the editor state on page load
 updateState();
 //the JWT for accessing the authentication 
@@ -729,11 +730,9 @@ async function saveFcn() {
         sections: sectionsArr,
         comments: commentArr,
         keys: keyArr,
-        type: listenerType
+        listenerType: listenerType
     };
-    console.log(listeningMap);
     //if dbID is still undefined then we have yet to save once. 
-    console.log("dbID before check:", dbID);
     if (dbID === undefined) {
         const response = await fetch("http://localhost:3001/annotations/", {
             method: "POST",
@@ -743,9 +742,25 @@ async function saveFcn() {
             body: JSON.stringify(listeningMap)
         });
         const data = await response.json();
+        savedListener = listeningMap;
         console.log("DATA ID IS: " + data.id);
         dbID = data.id;
         console.log(dbID);
+    }
+    else {
+        console.log("befire comparison");
+        console.log("new map: " + JSON.stringify(listeningMap));
+        console.log("OLD MAP: " + JSON.stringify(savedListener));
+        if (JSON.stringify(listeningMap) !== JSON.stringify(savedListener)) {
+            console.log("inside comparison");
+            const response = await fetch(`http://localhost:3001/annotations/${dbID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(listeningMap)
+            });
+        }
     }
 }
 //# sourceMappingURL=create.js.map

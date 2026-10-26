@@ -984,7 +984,7 @@ async function saveFcn(): Promise<void> {
   }
 
   //if dbID is still undefined then we have yet to save once. 
-  console.log("dbID before check:", dbID);
+
   if (dbID === undefined) {
     const response = await fetch("http://localhost:3001/annotations/", {
     method: "POST",
@@ -995,13 +995,19 @@ async function saveFcn(): Promise<void> {
     
   });
     const data = await response.json();
-    savedListener = listeningMap; 
+
+    //this ensures that we don't just copy one reference between the variables, instead getting a new copy of the data. 
+    savedListener = structuredClone(listeningMap); 
     console.log("DATA ID IS: " + data.id); 
     dbID = data.id; 
     console.log(dbID); 
   } 
   else {
+    console.log("befire comparison")
+    console.log("new map: " + JSON.stringify(listeningMap))
+    console.log("OLD MAP: " + JSON.stringify(savedListener));
     if (JSON.stringify(listeningMap) !== JSON.stringify(savedListener)) {
+      console.log("inside comparison")
       const response = await fetch(`http://localhost:3001/annotations/${dbID}`, {
       method: "PUT",
       headers: {
@@ -1009,6 +1015,7 @@ async function saveFcn(): Promise<void> {
       },
       body: JSON.stringify(listeningMap)
       });
+      savedListener = structuredClone(listeningMap); 
     }
   }
 }

@@ -40,7 +40,7 @@ router.post("/", async(req,res) => {
     trackid: typeof body.trackid,
     uri: typeof body.uri,
     duration: typeof body.duration,
-    type: typeof body.type,
+    type: typeof body.listenerType,
     sectionsIsArray: Array.isArray(body.sections),
     commentsIsArray: Array.isArray(body.comments),
     keysIsArray: Array.isArray(body.keys)
@@ -55,7 +55,7 @@ router.post("/", async(req,res) => {
         typeof body.trackid !== "number" ||
         typeof body.uri !== "string" ||
         typeof body.duration !== "number" ||
-        typeof body.type !== "string" ||
+        typeof body.listenerType !== "string" ||
         !Array.isArray(body.sections) ||
         !Array.isArray(body.comments) ||
         !Array.isArray(body.keys)
@@ -90,7 +90,7 @@ router.put("/:id", async(req,res) => {
             typeof body.trackid !== "number" ||
             typeof body.uri !== "string" ||
             typeof body.duration !== "number" ||
-            typeof body.type !== "string" ||
+            typeof body.listenerType !== "string" ||
             !Array.isArray(body.sections) ||
             !Array.isArray(body.comments) ||
             !Array.isArray(body.keys)

@@ -7,13 +7,30 @@ export interface ListeningMap {
     uri: string;
     duration: number;
     sections: section[];
+    comments: comment[];
+    keys: key[];
+    listenerType: string;
+}
+export interface comment {
+    commentNumber: number;
+    startTime: number;
+    lyrics?: string;
+    translation?: string;
+    notes?: string;
+}
+export interface key {
+    keyNumber: number;
+    startTime: number;
+    text: string;
 }
 export interface section {
-    annotationid: number;
-    sectionnumber: number;
-    sectionname: string;
-    starttime: number;
-    endtime: number;
+    sectionNumber: number;
+    measure: string;
+    sectionName: string;
+    startTime: number;
+    endTime: number;
+    lyrics?: string;
+    translation?: string;
     notes?: string;
 }
 export declare function createAnnotations(request: ListeningMap): void;

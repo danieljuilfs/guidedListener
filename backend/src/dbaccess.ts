@@ -37,7 +37,7 @@ export interface ListeningMap {
   sections: section[]; 
   comments: comment[];
   keys: key[]; 
-  type: string; 
+  listenerType: string; 
   }
 
   interface sectionRow {
@@ -109,7 +109,7 @@ export async function create(listen: ListeningMap): Promise<number> {
                 listen.trackid,
                 listen.uri,
                 listen.duration,
-                listen.type
+                listen.listenerType
             ]
         );
 
@@ -212,7 +212,7 @@ export async function update(id: number, listen: ListeningMap): Promise<number> 
                 listen.performer,
                 listen.title,
                 listen.composer,
-                listen.type,
+                listen.listenerType,
                 id
             ]
         );
