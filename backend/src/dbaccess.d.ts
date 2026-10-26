@@ -1,23 +1,23 @@
 interface section {
-    sectionNumber: number;
+    sectionnumber: number;
     measure: string;
-    sectionName: string;
-    startTime: number;
-    endTime: number;
-    lyrics?: string;
-    translation?: string;
-    notes?: string;
+    sectionname: string;
+    starttime: number;
+    endtime: number;
+    lyrics?: string | undefined;
+    translation?: string | undefined;
+    notes?: string | undefined;
 }
 interface comment {
-    commentNumber: number;
-    startTime: number;
-    lyrics?: string;
-    translation?: string;
-    notes?: string;
+    commentnumber: number;
+    starttime: number;
+    lyrics?: string | undefined;
+    translation?: string | undefined;
+    notes?: string | undefined;
 }
 interface key {
-    keyNumber: number;
-    startTime: number;
+    keynumber: number;
+    starttime: number;
     text: string;
 }
 export interface ListeningMap {
@@ -31,9 +31,10 @@ export interface ListeningMap {
     sections: section[];
     comments: comment[];
     keys: key[];
-    type: string;
+    listenerType: string;
 }
 export declare function read(id: number): Promise<Object | null>;
 export declare function create(listen: ListeningMap): Promise<number>;
+export declare function update(id: number, listen: ListeningMap): Promise<number>;
 export {};
 //# sourceMappingURL=dbaccess.d.ts.map
